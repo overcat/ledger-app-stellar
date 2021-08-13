@@ -101,6 +101,8 @@ typedef enum {
     XDR_OPERATION_TYPE_BUMP_SEQUENCE = 11,
     XDR_OPERATION_TYPE_MANAGE_BUY_OFFER = 12,
     XDR_OPERATION_TYPE_PATH_PAYMENT_STRICT_SEND = 13,
+    XDR_OPERATION_TYPE_CREATE_CLAIMABLE_BALANCE = 14,    
+    XDR_OPERATION_TYPE_CLAIM_CLAIMABLE_BALANCE = 15,
 } xdr_operation_type_e;
 
 #define PUBLIC_KEY_TYPE_ED25519 0
@@ -121,7 +123,7 @@ typedef enum {
 /*
  * Captions don't scroll so there is no use in having more capacity than can fit on screen at once.
  */
-#define DETAIL_CAPTION_MAX_SIZE 20
+#define DETAIL_CAPTION_MAX_SIZE 30
 
 /*
  * DETAIL_VALUE_MAX_SIZE value of 89 is due to the maximum length of managed data value which can be
@@ -254,6 +256,19 @@ typedef struct {
 } BumpSequenceOp;
 
 typedef enum {
+    CLAIMABLE_BALANCE_ID_TYPE_V0 = 0,
+} ClaimableBalanceIDType;
+
+typedef struct {
+    ClaimableBalanceIDType type;
+    uint8_t v0;
+} ClaimableBalanceID;
+
+typedef struct {
+    ClaimableBalanceID balanceID;
+} ClaimClaimableBalanceOp;
+
+typedef enum {
     SIGNER_KEY_TYPE_ED25519 = 0,
     SIGNER_KEY_TYPE_PRE_AUTH_TX = 1,
     SIGNER_KEY_TYPE_HASH_X = 2,
@@ -312,6 +327,7 @@ typedef struct {
         ManageDataOp manageDataOp;
         BumpSequenceOp bumpSequenceOp;
         ManageBuyOfferOp manageBuyOfferOp;
+        ClaimClaimableBalanceOp claimClaimableBalanceOp;
     };
 } Operation;
 

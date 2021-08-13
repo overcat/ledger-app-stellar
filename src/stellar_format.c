@@ -115,6 +115,23 @@ static void format_bump_sequence(tx_context_t *txCtx) {
     push_to_formatter_stack(&format_operation_source);
 }
 
+static void format_path_payment_strict_send(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Path Payment Strict Send");
+    strcpy(detailValue, "[none]");
+    push_to_formatter_stack(&format_operation_source);
+}
+static void format_create_claimable_balance(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Create Claimable Balance");
+    strcpy(detailValue, "[none]");
+    push_to_formatter_stack(&format_operation_source);
+}
+
+static void format_claim_claimable_balance(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Claim Claimable Balance");
+    strcpy(detailValue, "[none]");
+    push_to_formatter_stack(&format_operation_source);
+}
+
 static void format_inflation(tx_context_t *txCtx) {
     (void) txCtx;
     strcpy(opCaption, "Run Inflation");
@@ -581,7 +598,7 @@ static void format_create_account(tx_context_t *txCtx) {
     push_to_formatter_stack(&format_create_account_amount);
 }
 
-static const format_function_t formatters[13] = {&format_create_account,
+static const format_function_t formatters[16] = {&format_create_account,
                                                  &format_payment,
                                                  &format_path_payment,
                                                  &format_manage_offer,
@@ -593,7 +610,10 @@ static const format_function_t formatters[13] = {&format_create_account,
                                                  &format_inflation,
                                                  &format_manage_data,
                                                  &format_bump_sequence,
-                                                 &format_manage_buy_offer};
+                                                 &format_manage_buy_offer,
+                                                 &format_path_payment_strict_send,
+                                                 &format_create_claimable_balance,
+                                                 &format_claim_claimable_balance};
 
 void format_confirm_operation(tx_context_t *txCtx) {
     if (txCtx->opCount > 1) {

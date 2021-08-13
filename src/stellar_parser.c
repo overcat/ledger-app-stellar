@@ -230,6 +230,20 @@ static bool parse_asset(buffer_t *buffer, Asset *asset) {
     }
 }
 
+static bool parse_claimable_balance_id(buffer_t *buffer, ClaimableBalanceID *claimableBalanceID)  {
+    uint32_t claimableBalanceIDType;
+    PARSER_CHECK(buffer_read32(buffer, &claimableBalanceIDType));
+    if (claimableBalanceIDType != CLAIMABLE_BALANCE_ID_TYPE_V0) {
+        return false;
+    }
+    if (!buffer_can_read(buffer, HASH_SIZE)) {
+        return false;
+    }
+    // claimableBalanceID->v0 = buffer->ptr + buffer->offset;
+    buffer_read_bytes(buffer, &claimableBalanceID->v0, HASH_SIZE);
+    return true;
+}
+
 static bool parse_create_account(buffer_t *buffer, CreateAccountOp *createAccount) {
     if (!parse_account_id(buffer, &createAccount->destination)) {
         return false;
@@ -364,6 +378,11 @@ static bool parse_create_passive_sell_offer(buffer_t *buffer, CreatePassiveSellO
     PARSER_CHECK(parse_asset(buffer, &op->buying));
     PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &op->amount));
     PARSER_CHECK(parse_price(buffer, &op->price));
+    return true;
+}
+
+static bool parse_claim_claimable_balance(buffer_t *buffer, ClaimClaimableBalanceOp *op) {
+    PARSER_CHECK(parse_claimable_balance_id(buffer, &op->balanceID));
     return true;
 }
 
@@ -550,6 +569,9 @@ static bool parse_operation(buffer_t *buffer, Operation *opDetails) {
         }
         case XDR_OPERATION_TYPE_MANAGE_BUY_OFFER: {
             return parse_manage_buy_offer_op(buffer, &opDetails->manageBuyOfferOp);
+        }
+        case XDR_OPERATION_TYPE_CLAIM_CLAIMABLE_BALANCE: {
+            return parse_claim_claimable_balance(buffer, &opDetails->claimClaimableBalanceOp);
         }
         default:
             return false;  // Unknown operation
