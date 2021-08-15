@@ -109,6 +109,11 @@ typedef enum {
 #define DATA_VALUE_MAX_SIZE     64
 #define HOME_DOMAIN_MAX_SIZE    32
 
+typedef enum {
+    ENVELOPE_TYPE_TX = 2,
+    ENVELOPE_TYPE_TX_FEE_BUMP = 5,
+} EnvelopeType;
+
 // ------------------------------------------------------------------------- //
 //                             DISPLAY CONSTANTS                             //
 // ------------------------------------------------------------------------- //

@@ -96,16 +96,9 @@ static void format_operation_source(tx_context_t *txCtx) {
     if (txCtx->opDetails.sourceAccountPresent) {
         strcpy(detailCaption, "Op Source");
         print_public_key(txCtx->opDetails.sourceAccount, detailValue, 0, 0);
-        push_to_formatter_stack(&format_confirm_transaction_details);
     } else {
-        if (txCtx->opIdx == txCtx->opCount) {
-            // last operation: show transaction details
-            format_confirm_transaction_details(txCtx);
-        } else {
-            // more operations: show next operation
-            formatter_stack[formatter_index] = NULL;
-            set_state_data(true);
-        }
+        formatter_stack[formatter_index] = NULL;
+        set_state_data(true);
     }
 }
 
@@ -638,7 +631,11 @@ format_function_t get_formatter(tx_context_t *txCtx, bool forward) {
                 txCtx->opIdx = 0;
             }
 
-            while (current_data_index > txCtx->opIdx) {
+            if (current_data_index == 1) {
+                return &format_confirm_transaction_details;
+            }
+
+            while (current_data_index - 1 > txCtx->opIdx) {
                 if (!parse_tx_xdr(txCtx->raw, txCtx->rawLength, txCtx)) {
                     return NULL;
                 }
@@ -676,6 +673,7 @@ void ui_approve_tx_prev_screen(tx_context_t *txCtx) {
 }
 
 void set_state_data(bool forward) {
+    PRINTF("Function invoked: set_state_data formatter_index: %d, current_data_index: %d\n", current_data_index, formatter_index);
     if (forward) {
         ui_approve_tx_next_screen(&ctx.req.tx);
     } else {

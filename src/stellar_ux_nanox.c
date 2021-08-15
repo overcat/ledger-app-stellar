@@ -273,6 +273,8 @@ volatile uint8_t current_state;
 #define OUT_OF_BORDERS 1
 
 void display_next_state(bool is_upper_border) {
+    PRINTF("Function invoked: display_next_state current_state: %d, num_data: %d, current_data_index: %d, formatter_index:%d\n", 
+                                                    current_state, num_data, current_data_index, formatter_index);
     if (is_upper_border) {  // -> from first screen
         if (current_state == OUT_OF_BORDERS) {
             current_state = INSIDE_BORDERS;
@@ -327,7 +329,7 @@ void ui_approve_tx_init(void) {
     ctx.req.tx.offset = 0;
     formatter_index = 0;
     MEMCLEAR(formatter_stack);
-    num_data = ctx.req.tx.opCount;
+    num_data = ctx.req.tx.opCount + 1;
     current_data_index = 0;
     current_state = OUT_OF_BORDERS;
     ux_flow_init(0, ux_confirm_flow, NULL);

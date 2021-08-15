@@ -556,8 +556,6 @@ static bool parse_operation(buffer_t *buffer, Operation *opDetails) {
     }
 }
 
-#define ENVELOPE_TYPE_TX 2
-
 bool parse_tx_xdr(const uint8_t *data, size_t size, tx_context_t *txCtx) {
     buffer_t buffer = {data, size, 0};
     uint32_t envelopeType;
@@ -571,7 +569,11 @@ bool parse_tx_xdr(const uint8_t *data, size_t size, tx_context_t *txCtx) {
         if (!parse_network(&buffer, &txCtx->network)) {
             return false;
         }
-        if (!buffer_read32(&buffer, &envelopeType) || envelopeType != ENVELOPE_TYPE_TX) {
+        if (!buffer_read32(&buffer, &envelopeType)) {
+            return false;
+        }
+        PRINTF("parsed tx envelope type: %d\n", envelopeType);
+        if (envelopeType != ENVELOPE_TYPE_TX && envelopeType != ENVELOPE_TYPE_TX_FEE_BUMP) {
             return false;
         }
 
