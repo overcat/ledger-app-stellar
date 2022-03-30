@@ -190,8 +190,8 @@ static bool parse_time_bounds(buffer_t *buffer, TimeBounds *bounds) {
 }
 
 static bool parse_ledger_bounds(buffer_t *buffer, LedgerBounds *ledgerBounds) {
-    PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &ledgerBounds->minLedger));
-    PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &ledgerBounds->maxLedger));
+    PARSER_CHECK(buffer_read32(buffer, (uint32_t *) &ledgerBounds->minLedger));
+    PARSER_CHECK(buffer_read32(buffer, (uint32_t *) &ledgerBounds->maxLedger));
     return true;
 }
 
@@ -200,7 +200,7 @@ static bool parse_extra_signers(buffer_t *buffer, uint8_t *extraSignersLength) {
     for (int i = 0; i < *extraSignersLength; i++) {
         uint32_t signerType;
         PARSER_CHECK(buffer_read32(buffer, &signerType));
-        if (signerType != 3) {
+        if (signerType != 3) {  // SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD
             return false;
         }
         PARSER_CHECK(buffer_can_read(buffer, 32));
@@ -956,12 +956,6 @@ static bool parse_tx_details(buffer_t *buffer, TransactionDetails *transaction) 
 
     // validity conditions
     PARSER_CHECK(parse_preconditions(buffer, &transaction->cond));
-
-    // // validity range (inclusive) for the last ledger close time
-    // PARSER_CHECK(parse_optional_type(buffer,
-    //                                  (xdr_type_parser) parse_time_bounds,
-    //                                  &transaction->timeBounds,
-    //                                  &transaction->hasTimeBounds));
 
     PARSER_CHECK(parse_memo(buffer, &transaction->memo));
     uint32_t opCount;
