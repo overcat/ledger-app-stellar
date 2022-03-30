@@ -120,13 +120,25 @@ static void format_min_seq_num_prepare(tx_context_t *txCtx) {
 
 static void format_ledger_bounds_max_ledger(tx_context_t *txCtx) {
     strcpy(detailCaption, "Max Ledger Bounds");
-    print_uint(txCtx->txDetails.cond.ledgerBounds.maxLedger, detailValue, DETAIL_VALUE_MAX_SIZE);
+    if (txCtx->txDetails.cond.ledgerBounds.maxLedger == 0) {
+        strcpy(detailValue, "[no restriction]");
+    } else {
+        print_uint(txCtx->txDetails.cond.ledgerBounds.maxLedger,
+                   detailValue,
+                   DETAIL_VALUE_MAX_SIZE);
+    }
     push_to_formatter_stack(&format_min_seq_num_prepare);
 }
 
 static void format_ledger_bounds_min_ledger(tx_context_t *txCtx) {
     strcpy(detailCaption, "Min Ledger Bounds");
-    print_uint(txCtx->txDetails.cond.ledgerBounds.minLedger, detailValue, DETAIL_VALUE_MAX_SIZE);
+    if (txCtx->txDetails.cond.ledgerBounds.minLedger == 0) {
+        strcpy(detailValue, "[no restriction]");
+    } else {
+        print_uint(txCtx->txDetails.cond.ledgerBounds.minLedger,
+                   detailValue,
+                   DETAIL_VALUE_MAX_SIZE);
+    }
     push_to_formatter_stack(&format_ledger_bounds_max_ledger);
 }
 
