@@ -78,10 +78,12 @@ static void format_transaction_source(tx_context_t *txCtx) {
 
 static void format_time_bounds_max_time(tx_context_t *txCtx) {
     strcpy(detailCaption, "Time Bounds To");
-    if (txCtx->txDetails.timeBounds.maxTime == 0) {
+    if (txCtx->txDetails.cond.timeBounds.maxTime == 0) {
         strcpy(detailValue, "[no restriction]");
     } else {
-        if (!print_time(txCtx->txDetails.timeBounds.maxTime, detailValue, DETAIL_VALUE_MAX_SIZE)) {
+        if (!print_time(txCtx->txDetails.cond.timeBounds.maxTime,
+                        detailValue,
+                        DETAIL_VALUE_MAX_SIZE)) {
             THROW(0x6126);
         };
     }
@@ -90,10 +92,12 @@ static void format_time_bounds_max_time(tx_context_t *txCtx) {
 
 static void format_time_bounds_min_time(tx_context_t *txCtx) {
     strcpy(detailCaption, "Time Bounds From");
-    if (txCtx->txDetails.timeBounds.minTime == 0) {
+    if (txCtx->txDetails.cond.timeBounds.minTime == 0) {
         strcpy(detailValue, "[no restriction]");
     } else {
-        if (!print_time(txCtx->txDetails.timeBounds.minTime, detailValue, DETAIL_VALUE_MAX_SIZE)) {
+        if (!print_time(txCtx->txDetails.cond.timeBounds.minTime,
+                        detailValue,
+                        DETAIL_VALUE_MAX_SIZE)) {
             THROW(0x6126);
         };
     }
@@ -102,8 +106,9 @@ static void format_time_bounds_min_time(tx_context_t *txCtx) {
 
 static void format_time_bounds(tx_context_t *txCtx) {
     // TODO: should we add a page to remind the user that this is UTC time?
-    if (txCtx->txDetails.hasTimeBounds == false ||
-        (txCtx->txDetails.timeBounds.minTime == 0 && txCtx->txDetails.timeBounds.maxTime == 0)) {
+    if (txCtx->txDetails.cond.hasTimeBounds == false ||
+        (txCtx->txDetails.cond.timeBounds.minTime == 0 &&
+         txCtx->txDetails.cond.timeBounds.maxTime == 0)) {
         format_transaction_source(txCtx);
     } else {
         format_time_bounds_min_time(txCtx);

@@ -168,6 +168,24 @@ static bool parse_time_bounds(buffer_t *buffer, TimeBounds *bounds) {
     return buffer_read64(buffer, &bounds->maxTime);
 }
 
+static bool parse_preconditions(buffer_t *buffer, Preconditions *cond) {
+    uint32_t preconditionType;
+    PARSER_CHECK(buffer_read32(buffer, &preconditionType));
+    switch (preconditionType) {
+        case PRECOND_NONE:
+            return true;
+        case PRECOND_TIME:
+            cond->hasTimeBounds = true;
+            PARSER_CHECK(parse_time_bounds(buffer, &cond->timeBounds));
+        case PRECOND_V2:
+            // TODO: parse PRECOND_V2
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
 /* TODO: max_length does not include terminal null character */
 static bool parse_string_ptr(buffer_t *buffer,
                              const char **string,
@@ -897,11 +915,14 @@ static bool parse_tx_details(buffer_t *buffer, TransactionDetails *transaction) 
     // sequence number to consume in the account
     PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &transaction->sequenceNumber));
 
-    // validity range (inclusive) for the last ledger close time
-    PARSER_CHECK(parse_optional_type(buffer,
-                                     (xdr_type_parser) parse_time_bounds,
-                                     &transaction->timeBounds,
-                                     &transaction->hasTimeBounds));
+    // validity conditions
+    PARSER_CHECK(parse_preconditions(buffer, (uint64_t *) &transaction->cond));
+
+    // // validity range (inclusive) for the last ledger close time
+    // PARSER_CHECK(parse_optional_type(buffer,
+    //                                  (xdr_type_parser) parse_time_bounds,
+    //                                  &transaction->timeBounds,
+    //                                  &transaction->hasTimeBounds));
 
     PARSER_CHECK(parse_memo(buffer, &transaction->memo));
     uint32_t opCount;
