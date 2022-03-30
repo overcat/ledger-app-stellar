@@ -105,6 +105,27 @@ static bool check_padding(const uint8_t *buffer, size_t offset, size_t length) {
     return true;
 }
 
+typedef bool (*xdr_type_parser)(buffer_t *, void *);
+
+static bool parse_optional_type(buffer_t *buffer, xdr_type_parser parser, void *dst, bool *opted) {
+    bool isPresent;
+
+    if (!buffer_read_bool(buffer, &isPresent)) {
+        return false;
+    }
+    if (isPresent) {
+        if (opted) {
+            *opted = true;
+        }
+        return parser(buffer, dst);
+    } else {
+        if (opted) {
+            *opted = false;
+        }
+        return true;
+    }
+}
+
 #define PARSER_CHECK(x)         \
     {                           \
         if (!(x)) return false; \
@@ -168,6 +189,31 @@ static bool parse_time_bounds(buffer_t *buffer, TimeBounds *bounds) {
     return buffer_read64(buffer, &bounds->maxTime);
 }
 
+static bool parse_ledger_bounds(buffer_t *buffer, LedgerBounds *ledgerBounds) {
+    PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &ledgerBounds->minLedger));
+    PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &ledgerBounds->maxLedger));
+    return true;
+}
+
+static bool parse_extra_signers(buffer_t *buffer, uint8_t *extraSignersLength) {
+    PARSER_CHECK(buffer_read32(buffer, (uint32_t *) extraSignersLength));
+    for (int i = 0; i < *extraSignersLength; i++) {
+        uint32_t signerType;
+        PARSER_CHECK(buffer_read32(buffer, &signerType));
+        if (signerType != 3) {
+            return false;
+        }
+        PARSER_CHECK(buffer_can_read(buffer, 32));
+        buffer_advance(buffer, 32);
+        uint32_t payloadLength;
+        PARSER_CHECK(buffer_read32(buffer, &payloadLength));
+        payloadLength += (4 - payloadLength % 4) % 4;
+        PARSER_CHECK(buffer_can_read(buffer, payloadLength));
+        buffer_advance(buffer, payloadLength);
+    }
+    return true;
+}
+
 static bool parse_preconditions(buffer_t *buffer, Preconditions *cond) {
     uint32_t preconditionType;
     PARSER_CHECK(buffer_read32(buffer, &preconditionType));
@@ -178,12 +224,25 @@ static bool parse_preconditions(buffer_t *buffer, Preconditions *cond) {
             cond->hasTimeBounds = true;
             PARSER_CHECK(parse_time_bounds(buffer, &cond->timeBounds));
         case PRECOND_V2:
-            // TODO: parse PRECOND_V2
-            break;
+            PARSER_CHECK(parse_optional_type(buffer,
+                                             (xdr_type_parser) parse_time_bounds,
+                                             &cond->timeBounds,
+                                             &cond->hasTimeBounds));
+            PARSER_CHECK(parse_optional_type(buffer,
+                                             (xdr_type_parser) parse_ledger_bounds,
+                                             &cond->ledgerBounds,
+                                             &cond->hasLedgerBounds));
+            PARSER_CHECK(parse_optional_type(buffer,
+                                             (xdr_type_parser) buffer_read64,
+                                             (uint64_t *) &cond->minSeqNum,
+                                             &cond->hasMinSeqNum));
+            PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &cond->minSeqAge));
+            PARSER_CHECK(buffer_read32(buffer, &cond->minSeqLedgerGap));
+            PARSER_CHECK(parse_extra_signers(buffer, &cond->extraSignersLength));
+            return true;
         default:
             return false;
     }
-    return true;
 }
 
 /* TODO: max_length does not include terminal null character */
@@ -481,27 +540,6 @@ static bool parse_change_trust(buffer_t *buffer, ChangeTrustOp *op) {
         return false;
     }
     return buffer_read64(buffer, &op->limit);
-}
-
-typedef bool (*xdr_type_parser)(buffer_t *, void *);
-
-static bool parse_optional_type(buffer_t *buffer, xdr_type_parser parser, void *dst, bool *opted) {
-    bool isPresent;
-
-    if (!buffer_read_bool(buffer, &isPresent)) {
-        return false;
-    }
-    if (isPresent) {
-        if (opted) {
-            *opted = true;
-        }
-        return parser(buffer, dst);
-    } else {
-        if (opted) {
-            *opted = false;
-        }
-        return true;
-    }
 }
 
 static bool parse_signer_key(buffer_t *buffer, SignerKey *key) {
@@ -916,7 +954,7 @@ static bool parse_tx_details(buffer_t *buffer, TransactionDetails *transaction) 
     PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &transaction->sequenceNumber));
 
     // validity conditions
-    PARSER_CHECK(parse_preconditions(buffer, (uint64_t *) &transaction->cond));
+    PARSER_CHECK(parse_preconditions(buffer, &transaction->cond));
 
     // // validity range (inclusive) for the last ledger close time
     // PARSER_CHECK(parse_optional_type(buffer,
