@@ -223,6 +223,7 @@ static bool parse_preconditions(buffer_t *buffer, Preconditions *cond) {
         case PRECOND_TIME:
             cond->hasTimeBounds = true;
             PARSER_CHECK(parse_time_bounds(buffer, &cond->timeBounds));
+            return true;
         case PRECOND_V2:
             PARSER_CHECK(parse_optional_type(buffer,
                                              (xdr_type_parser) parse_time_bounds,
