@@ -200,6 +200,8 @@ typedef enum {
     SIGNER_KEY_TYPE_HASH_X = KEY_TYPE_HASH_X
 } SignerKeyType;
 
+#define SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD 3
+
 typedef enum {
     // issuer has authorized account to perform transactions with its credit
     AUTHORIZED_FLAG = 1,

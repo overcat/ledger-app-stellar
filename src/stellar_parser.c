@@ -198,7 +198,7 @@ static bool parse_ledger_bounds(buffer_t *buffer, LedgerBounds *ledgerBounds) {
 static bool parse_extra_signers(buffer_t *buffer, uint8_t *extraSignersLength) {
     uint32_t length;
     PARSER_CHECK(buffer_read32(buffer, &length));
-    if (length > 2) {
+    if (length > 2) {  // maximum length is 2
         return false;
     }
     *extraSignersLength = length;
@@ -206,7 +206,7 @@ static bool parse_extra_signers(buffer_t *buffer, uint8_t *extraSignersLength) {
     for (int i = 0; i < *extraSignersLength; i++) {
         uint32_t signerType;
         PARSER_CHECK(buffer_read32(buffer, &signerType));
-        if (signerType != 3) {  // SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD
+        if (signerType != SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD) {
             return false;
         }
         PARSER_CHECK(buffer_can_read(buffer, 32));
