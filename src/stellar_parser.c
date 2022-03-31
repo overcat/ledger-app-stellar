@@ -196,7 +196,13 @@ static bool parse_ledger_bounds(buffer_t *buffer, LedgerBounds *ledgerBounds) {
 }
 
 static bool parse_extra_signers(buffer_t *buffer, uint8_t *extraSignersLength) {
-    PARSER_CHECK(buffer_read32(buffer, (uint32_t *) extraSignersLength));
+    uint32_t length;
+    PARSER_CHECK(buffer_read32(buffer, &length));
+    if (length > 2) {
+        return false;
+    }
+    *extraSignersLength = length;
+
     for (int i = 0; i < *extraSignersLength; i++) {
         uint32_t signerType;
         PARSER_CHECK(buffer_read32(buffer, &signerType));
