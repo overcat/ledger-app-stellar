@@ -97,6 +97,7 @@ static const char *testcases[] = {
     "../testcases/txCondLedgerBounds.raw",
     "../testcases/txCondLedgerBoundsMaxIsZero.raw",
     "../testcases/txCondLedgerBoundsMinIsZero.raw",
+    "../testcases/txCondWithoutLedgerBounds.raw",
     "../testcases/txCondMinSeqAge.raw",
     "../testcases/txCondMinSeqLedgerGap.raw",
     "../testcases/txCondMinSeqNum.raw",
