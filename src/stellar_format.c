@@ -76,24 +76,118 @@ static void format_transaction_source(tx_context_t *txCtx) {
     push_to_formatter_stack(format_next_step);
 }
 
-static void format_time_bounds_max_time(tx_context_t *txCtx) {
-    strcpy(detailCaption, "Time Bounds To");
-    if (txCtx->txDetails.timeBounds.maxTime == 0) {
+static void format_extra_signers(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Extra Signers Num");
+    print_uint(txCtx->txDetails.cond.extraSignersLength, detailValue, DETAIL_VALUE_MAX_SIZE);
+    push_to_formatter_stack(&format_transaction_source);
+}
+
+static void format_extra_signers_prepare(tx_context_t *txCtx) {
+    if (txCtx->txDetails.cond.extraSignersLength == 0) {
+        format_transaction_source(txCtx);
+    } else {
+        format_extra_signers(txCtx);
+    }
+}
+
+static void format_min_seq_ledger_gap(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Min Seq Ledger Gap");
+    print_uint(txCtx->txDetails.cond.minSeqLedgerGap, detailValue, DETAIL_VALUE_MAX_SIZE);
+    push_to_formatter_stack(&format_extra_signers_prepare);
+}
+
+static void format_min_seq_ledger_gap_prepare(tx_context_t *txCtx) {
+    if (txCtx->txDetails.cond.minSeqLedgerGap == 0) {
+        format_extra_signers_prepare(txCtx);
+    } else {
+        format_min_seq_ledger_gap(txCtx);
+    }
+}
+
+static void format_min_seq_age(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Min Seq Age");
+    print_uint(txCtx->txDetails.cond.minSeqAge, detailValue, DETAIL_VALUE_MAX_SIZE);
+    push_to_formatter_stack(&format_min_seq_ledger_gap_prepare);
+}
+
+static void format_min_seq_age_prepare(tx_context_t *txCtx) {
+    if (txCtx->txDetails.cond.minSeqAge == 0) {
+        format_min_seq_ledger_gap_prepare(txCtx);
+    } else {
+        format_min_seq_age(txCtx);
+    }
+}
+
+static void format_min_seq_num(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Min Seq Num");
+    print_uint(txCtx->txDetails.cond.minSeqNum, detailValue, DETAIL_VALUE_MAX_SIZE);
+    push_to_formatter_stack(&format_min_seq_age_prepare);
+}
+
+static void format_min_seq_num_prepare(tx_context_t *txCtx) {
+    if (!txCtx->txDetails.cond.hasMinSeqNum || txCtx->txDetails.cond.minSeqNum == 0) {
+        format_min_seq_age_prepare(txCtx);
+    } else {
+        format_min_seq_num(txCtx);
+    }
+}
+
+static void format_ledger_bounds_max_ledger(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Max Ledger Bounds");
+    if (txCtx->txDetails.cond.ledgerBounds.maxLedger == 0) {
         strcpy(detailValue, "[no restriction]");
     } else {
-        if (!print_time(txCtx->txDetails.timeBounds.maxTime, detailValue, DETAIL_VALUE_MAX_SIZE)) {
+        print_uint(txCtx->txDetails.cond.ledgerBounds.maxLedger,
+                   detailValue,
+                   DETAIL_VALUE_MAX_SIZE);
+    }
+    push_to_formatter_stack(&format_min_seq_num_prepare);
+}
+
+static void format_ledger_bounds_min_ledger(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Min Ledger Bounds");
+    if (txCtx->txDetails.cond.ledgerBounds.minLedger == 0) {
+        strcpy(detailValue, "[no restriction]");
+    } else {
+        print_uint(txCtx->txDetails.cond.ledgerBounds.minLedger,
+                   detailValue,
+                   DETAIL_VALUE_MAX_SIZE);
+    }
+    push_to_formatter_stack(&format_ledger_bounds_max_ledger);
+}
+
+static void format_ledger_bounds(tx_context_t *txCtx) {
+    if (!txCtx->txDetails.cond.hasLedgerBounds ||
+        (txCtx->txDetails.cond.ledgerBounds.minLedger == 0 &&
+         txCtx->txDetails.cond.ledgerBounds.maxLedger == 0)) {
+        format_min_seq_num_prepare(txCtx);
+    } else {
+        format_ledger_bounds_min_ledger(txCtx);
+    }
+}
+
+static void format_time_bounds_max_time(tx_context_t *txCtx) {
+    strcpy(detailCaption, "Time Bounds To");
+    if (txCtx->txDetails.cond.timeBounds.maxTime == 0) {
+        strcpy(detailValue, "[no restriction]");
+    } else {
+        if (!print_time(txCtx->txDetails.cond.timeBounds.maxTime,
+                        detailValue,
+                        DETAIL_VALUE_MAX_SIZE)) {
             THROW(0x6126);
         };
     }
-    push_to_formatter_stack(&format_transaction_source);
+    push_to_formatter_stack(&format_ledger_bounds);
 }
 
 static void format_time_bounds_min_time(tx_context_t *txCtx) {
     strcpy(detailCaption, "Time Bounds From");
-    if (txCtx->txDetails.timeBounds.minTime == 0) {
+    if (txCtx->txDetails.cond.timeBounds.minTime == 0) {
         strcpy(detailValue, "[no restriction]");
     } else {
-        if (!print_time(txCtx->txDetails.timeBounds.minTime, detailValue, DETAIL_VALUE_MAX_SIZE)) {
+        if (!print_time(txCtx->txDetails.cond.timeBounds.minTime,
+                        detailValue,
+                        DETAIL_VALUE_MAX_SIZE)) {
             THROW(0x6126);
         };
     }
@@ -102,9 +196,9 @@ static void format_time_bounds_min_time(tx_context_t *txCtx) {
 
 static void format_time_bounds(tx_context_t *txCtx) {
     // TODO: should we add a page to remind the user that this is UTC time?
-    if (txCtx->txDetails.hasTimeBounds == false ||
-        (txCtx->txDetails.timeBounds.minTime == 0 && txCtx->txDetails.timeBounds.maxTime == 0)) {
-        format_transaction_source(txCtx);
+    if (!txCtx->txDetails.cond.hasTimeBounds || (txCtx->txDetails.cond.timeBounds.minTime == 0 &&
+                                                 txCtx->txDetails.cond.timeBounds.maxTime == 0)) {
+        format_ledger_bounds(txCtx);
     } else {
         format_time_bounds_min_time(txCtx);
     }
