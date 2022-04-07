@@ -131,6 +131,35 @@ static bool parse_optional_type(buffer_t *buffer, xdr_type_parser parser, void *
         if (!(x)) return false; \
     }
 
+static bool parse_signer_key(buffer_t *buffer, SignerKey *key) {
+    uint32_t signerType;
+
+    PARSER_CHECK(buffer_read32(buffer, &signerType));
+    key->type = signerType;
+
+    switch (signerType) {
+        case SIGNER_KEY_TYPE_ED25519:
+        case SIGNER_KEY_TYPE_PRE_AUTH_TX:
+        case SIGNER_KEY_TYPE_HASH_X:
+            PARSER_CHECK(buffer_can_read(buffer, 32));
+            key->data = buffer->ptr + buffer->offset;
+            buffer_advance(buffer, 32);
+            return true;
+        case SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD:
+            PARSER_CHECK(buffer_can_read(buffer, 32));
+            key->data = buffer->ptr + buffer->offset;
+            buffer_advance(buffer, 32);
+            uint32_t payloadLength;
+            PARSER_CHECK(buffer_read32(buffer, &payloadLength));
+            payloadLength += (4 - payloadLength % 4) % 4;
+            PARSER_CHECK(buffer_can_read(buffer, payloadLength));
+            buffer_advance(buffer, payloadLength);
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool parse_account_id(buffer_t *buffer, const uint8_t **account_id) {
     uint32_t accountType;
 
@@ -195,27 +224,16 @@ static bool parse_ledger_bounds(buffer_t *buffer, LedgerBounds *ledgerBounds) {
     return true;
 }
 
-static bool parse_extra_signers(buffer_t *buffer, uint8_t *extraSignersLength) {
+static bool parse_extra_signers(buffer_t *buffer) {
     uint32_t length;
     PARSER_CHECK(buffer_read32(buffer, &length));
     if (length > 2) {  // maximum length is 2
         return false;
     }
-    *extraSignersLength = length;
 
-    for (int i = 0; i < *extraSignersLength; i++) {
-        uint32_t signerType;
-        PARSER_CHECK(buffer_read32(buffer, &signerType));
-        if (signerType != SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD) {
-            return false;
-        }
-        PARSER_CHECK(buffer_can_read(buffer, 32));
-        buffer_advance(buffer, 32);
-        uint32_t payloadLength;
-        PARSER_CHECK(buffer_read32(buffer, &payloadLength));
-        payloadLength += (4 - payloadLength % 4) % 4;
-        PARSER_CHECK(buffer_can_read(buffer, payloadLength));
-        buffer_advance(buffer, payloadLength);
+    SignerKey signerKey;
+    for (uint32_t i = 0; i < length; i++) {
+        PARSER_CHECK(parse_signer_key(buffer, &signerKey));
     }
     return true;
 }
@@ -245,7 +263,7 @@ static bool parse_preconditions(buffer_t *buffer, Preconditions *cond) {
                                              &cond->hasMinSeqNum));
             PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &cond->minSeqAge));
             PARSER_CHECK(buffer_read32(buffer, &cond->minSeqLedgerGap));
-            PARSER_CHECK(parse_extra_signers(buffer, &cond->extraSignersLength));
+            PARSER_CHECK(parse_extra_signers(buffer));
             return true;
         default:
             return false;
@@ -547,24 +565,6 @@ static bool parse_change_trust(buffer_t *buffer, ChangeTrustOp *op) {
         return false;
     }
     return buffer_read64(buffer, &op->limit);
-}
-
-static bool parse_signer_key(buffer_t *buffer, SignerKey *key) {
-    uint32_t signerType;
-
-    PARSER_CHECK(buffer_read32(buffer, &signerType));
-    key->type = signerType;
-    if (signerType != SIGNER_KEY_TYPE_ED25519 && signerType != SIGNER_KEY_TYPE_PRE_AUTH_TX &&
-        signerType != SIGNER_KEY_TYPE_HASH_X) {
-        return false;
-    }
-
-    if (buffer->size - buffer->offset < 32) {
-        return false;
-    }
-    key->data = buffer->ptr + buffer->offset;
-    buffer_advance(buffer, 32);
-    return true;
 }
 
 static bool parse_signer(buffer_t *buffer, signer_t *signer) {

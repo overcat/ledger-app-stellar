@@ -8,7 +8,6 @@ Time Bounds To; 2022-03-31 07:33:20
 Min Seq Num; 40260007
 Min Seq Age; 180
 Min Seq Ledger Gap; 30
-Extra Signers Num; 2
 Tx Source; GD2J5ZZTU4XM5LEX3XPKSCJIQ3UMXU7NLZMHOZEMELXKI4XLPHHKGVM5
 Operation Type; Payment
 Send; 1 XLM
