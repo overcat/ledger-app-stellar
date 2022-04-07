@@ -191,16 +191,16 @@ typedef enum {
     KEY_TYPE_ED25519 = 0,
     KEY_TYPE_PRE_AUTH_TX = 1,
     KEY_TYPE_HASH_X = 2,
+    KEY_TYPE_ED25519_SIGNED_PAYLOAD = 3,
     KEY_TYPE_MUXED_ED25519 = 0x100
 } CryptoKeyType;
 
 typedef enum {
     SIGNER_KEY_TYPE_ED25519 = KEY_TYPE_ED25519,
     SIGNER_KEY_TYPE_PRE_AUTH_TX = KEY_TYPE_PRE_AUTH_TX,
-    SIGNER_KEY_TYPE_HASH_X = KEY_TYPE_HASH_X
+    SIGNER_KEY_TYPE_HASH_X = KEY_TYPE_HASH_X,
+    SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD = KEY_TYPE_ED25519_SIGNED_PAYLOAD
 } SignerKeyType;
-
-#define SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD 3
 
 typedef enum {
     // issuer has authorized account to perform transactions with its credit
@@ -600,7 +600,6 @@ typedef struct {
     bool hasTimeBounds;
     bool hasLedgerBounds;
     bool hasMinSeqNum;
-    uint8_t extraSignersLength;  // should we ignore it?
 } Preconditions;
 
 typedef struct {

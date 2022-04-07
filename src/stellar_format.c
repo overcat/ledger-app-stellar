@@ -76,29 +76,15 @@ static void format_transaction_source(tx_context_t *txCtx) {
     push_to_formatter_stack(format_next_step);
 }
 
-static void format_extra_signers(tx_context_t *txCtx) {
-    strcpy(detailCaption, "Extra Signers Num");
-    print_uint(txCtx->txDetails.cond.extraSignersLength, detailValue, DETAIL_VALUE_MAX_SIZE);
-    push_to_formatter_stack(&format_transaction_source);
-}
-
-static void format_extra_signers_prepare(tx_context_t *txCtx) {
-    if (txCtx->txDetails.cond.extraSignersLength == 0) {
-        format_transaction_source(txCtx);
-    } else {
-        format_extra_signers(txCtx);
-    }
-}
-
 static void format_min_seq_ledger_gap(tx_context_t *txCtx) {
     strcpy(detailCaption, "Min Seq Ledger Gap");
     print_uint(txCtx->txDetails.cond.minSeqLedgerGap, detailValue, DETAIL_VALUE_MAX_SIZE);
-    push_to_formatter_stack(&format_extra_signers_prepare);
+    push_to_formatter_stack(&format_transaction_source);
 }
 
 static void format_min_seq_ledger_gap_prepare(tx_context_t *txCtx) {
     if (txCtx->txDetails.cond.minSeqLedgerGap == 0) {
-        format_extra_signers_prepare(txCtx);
+        format_transaction_source(txCtx);
     } else {
         format_min_seq_ledger_gap(txCtx);
     }
@@ -429,6 +415,8 @@ static void format_set_option_signer_detail(tx_context_t *txCtx) {
             print_summary(tmp, detailValue, 12, 12);
             break;
         }
+        default:
+            break;
     }
     push_to_formatter_stack(&format_set_option_signer_weight);
 }
@@ -453,6 +441,8 @@ static void format_set_option_signer(tx_context_t *txCtx) {
             strcpy(detailValue, "Type Pre-Auth");
             break;
         }
+        default:
+            break;
     }
     push_to_formatter_stack(&format_set_option_signer_detail);
 }
@@ -1217,6 +1207,8 @@ static void format_revoke_sponsorship_claimable_signer_signer_key_detail(tx_cont
             print_summary(tmp, detailValue, 12, 12);
             break;
         }
+        default:
+            break;
     }
     format_operation_source_prepare(txCtx);
 }
@@ -1236,6 +1228,8 @@ static void format_revoke_sponsorship_claimable_signer_signer_key_type(tx_contex
             strcpy(detailValue, "Pre-Auth");
             break;
         }
+        default:
+            break;
     }
 
     push_to_formatter_stack(&format_revoke_sponsorship_claimable_signer_signer_key_detail);
