@@ -1619,6 +1619,36 @@ static void format_liquidity_pool_withdraw(tx_ctx_t *tx_ctx) {
     push_to_formatter_stack(&format_liquidity_pool_withdraw_liquidity_pool_id);
 }
 
+static void format_invoke_host_function_function_name(tx_ctx_t *tx_ctx) {
+    (void) tx_ctx;
+    STRLCPY(G.ui.detail_caption, "Function Name", DETAIL_CAPTION_MAX_LENGTH);
+    char tmp[DETAIL_VALUE_MAX_LENGTH];
+    memcpy(tmp,
+           (char *) tx_ctx->tx_details.op_details.invoke_host_function_op.function_name,
+           tx_ctx->tx_details.op_details.invoke_host_function_op.function_name_size);
+    tmp[tx_ctx->tx_details.op_details.invoke_host_function_op.function_name_size] = '\0';
+    STRLCPY(G.ui.detail_value, tmp, DETAIL_VALUE_MAX_LENGTH);
+    format_operation_source_prepare(tx_ctx);
+}
+
+static void format_invoke_host_function_contract_id(tx_ctx_t *tx_ctx) {
+    STRLCPY(G.ui.detail_caption, "Contract ID", DETAIL_CAPTION_MAX_LENGTH);
+    FORMATTER_CHECK(print_binary(tx_ctx->tx_details.op_details.invoke_host_function_op.contract_id,
+                                 32,
+                                 G.ui.detail_value,
+                                 DETAIL_VALUE_MAX_LENGTH,
+                                 0,
+                                 0))
+    push_to_formatter_stack(&format_invoke_host_function_function_name);
+}
+
+static void format_invoke_host_function(tx_ctx_t *tx_ctx) {
+    (void) tx_ctx;
+    STRLCPY(G.ui.detail_caption, "Operation Type", DETAIL_CAPTION_MAX_LENGTH);
+    STRLCPY(G.ui.detail_value, "Invoke Host Function", DETAIL_VALUE_MAX_LENGTH);
+    push_to_formatter_stack(&format_invoke_host_function_contract_id);
+}
+
 static const format_function_t formatters[] = {&format_create_account,
                                                &format_payment,
                                                &format_path_payment_strict_receive,
@@ -1642,7 +1672,8 @@ static const format_function_t formatters[] = {&format_create_account,
                                                &format_clawback_claimable_balance,
                                                &format_set_trust_line_flags,
                                                &format_liquidity_pool_deposit,
-                                               &format_liquidity_pool_withdraw};
+                                               &format_liquidity_pool_withdraw,
+                                               &format_invoke_host_function};
 
 void format_confirm_operation(tx_ctx_t *tx_ctx) {
     if (tx_ctx->tx_details.operations_count > 1) {

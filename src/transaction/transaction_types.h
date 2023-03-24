@@ -51,6 +51,8 @@
 #define NETWORK_TYPE_TEST    1
 #define NETWORK_TYPE_UNKNOWN 2
 
+#define HOST_FUNCTION_TYPE_INVOKE_CONTRACT 0
+
 typedef enum {
     ASSET_TYPE_NATIVE = 0,
     ASSET_TYPE_CREDIT_ALPHANUM4 = 1,
@@ -70,6 +72,34 @@ typedef enum {
     ENVELOPE_TYPE_TX = 2,
     ENVELOPE_TYPE_TX_FEE_BUMP = 5,
 } envelope_type_t;
+
+typedef enum {
+    SCV_U63 = 0,
+    SCV_U32 = 1,
+    SCV_I32 = 2,
+    SCV_STATIC = 3,
+    SCV_OBJECT = 4,
+    SCV_SYMBOL = 5,
+    SCV_BITSET = 6,
+    SCV_STATUS = 7
+} scv_type_t;
+
+typedef enum {
+    SCO_VEC = 0,
+    SCO_MAP = 1,
+    SCO_U64 = 2,
+    SCO_I64 = 3,
+    SCO_U128 = 4,
+    SCO_I128 = 5,
+    SCO_BYTES = 6,
+    SCO_CONTRACT_CODE = 7,
+    SCO_ADDRESS = 8,
+    SCO_NONCE_KEY = 9
+} sc_object_type_t;
+
+typedef enum { SC_ADDRESS_TYPE_ACCOUNT = 0, SC_ADDRESS_TYPE_CONTRACT = 1 } sc_address_type_t;
+
+typedef enum { SCCONTRACT_CODE_WASM_REF = 0, SCCONTRACT_CODE_TOKEN = 1 } sc_contract_code_type_t;
 
 typedef enum {
     OPERATION_TYPE_CREATE_ACCOUNT = 0,
@@ -96,6 +126,7 @@ typedef enum {
     OPERATION_TYPE_SET_TRUST_LINE_FLAGS = 21,
     OPERATION_TYPE_LIQUIDITY_POOL_DEPOSIT = 22,
     OPERATION_TYPE_LIQUIDITY_POOL_WITHDRAW = 23,
+    OPERATION_TYPE_INVOKE_HOST_FUNCTION = 24
 } operation_type_t;
 
 typedef const uint8_t *account_id_t;
@@ -381,7 +412,10 @@ typedef enum {
     OFFER = 2,
     DATA = 3,
     CLAIMABLE_BALANCE = 4,
-    LIQUIDITY_POOL = 5
+    LIQUIDITY_POOL = 5,
+    CONTRACT_DATA = 6,
+    CONTRACT_CODE = 7,
+    CONFIG_SETTING = 8
 } ledger_entry_type_t;
 
 typedef struct {
@@ -468,6 +502,12 @@ typedef struct {
 } liquidity_pool_withdraw_op_t;
 
 typedef struct {
+    const uint8_t *contract_id;
+    const uint8_t *function_name;
+    uint8_t function_name_size;
+} invoke_host_function_op;
+
+typedef struct {
     muxed_account_t source_account;
     uint8_t type;
     bool source_account_present;
@@ -494,6 +534,7 @@ typedef struct {
         set_trust_line_flags_op_t set_trust_line_flags_op;
         liquidity_pool_deposit_op_t liquidity_pool_deposit_op;
         liquidity_pool_withdraw_op_t liquidity_pool_withdraw_op;
+        invoke_host_function_op invoke_host_function_op;
     };
 } operation_t;
 

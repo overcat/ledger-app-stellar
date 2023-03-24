@@ -25,6 +25,8 @@
 #include "../sw.h"
 #include "../common/buffer.h"
 
+bool parse_sc_val(buffer_t *buffer);
+
 #define PARSER_CHECK(x)         \
     {                           \
         if (!(x)) return false; \
@@ -743,6 +745,17 @@ bool parse_ledger_key(buffer_t *buffer, ledger_key_t *ledger_key) {
             ledger_key->liquidity_pool.liquidity_pool_id = buffer->ptr + buffer->offset;
             PARSER_CHECK(buffer_advance(buffer, LIQUIDITY_POOL_ID_SIZE))
             return true;
+        case CONTRACT_DATA: {
+            PARSER_CHECK(buffer_advance(buffer, 32))
+            parse_sc_val(buffer);
+            return true;
+        }
+        case CONTRACT_CODE:
+            PARSER_CHECK(buffer_advance(buffer, 32))
+            return true;
+        case CONFIG_SETTING:
+            // TODO: implement
+            return false;
         default:
             return false;
     }
@@ -804,6 +817,251 @@ bool parse_liquidity_pool_withdraw(buffer_t *buffer, liquidity_pool_withdraw_op_
     PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &op->amount))
     PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &op->min_amount_a))
     PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &op->min_amount_b))
+    return true;
+}
+
+bool parse_sc_vec(buffer_t *buffer) {
+    uint32_t size;
+    PARSER_CHECK(buffer_read32(buffer, &size))
+    for (uint32_t i = 0; i < size; i++) {
+        PARSER_CHECK(parse_sc_val(buffer))
+    }
+    return true;
+}
+
+bool parse_sc_address(buffer_t *buffer) {
+    PRINTF("parse_sc_address\n");
+    uint32_t type;
+    PARSER_CHECK(buffer_read32(buffer, &type))
+    switch (type) {
+        case SC_ADDRESS_TYPE_ACCOUNT: {
+            account_id_t addr;
+            PARSER_CHECK(parse_account_id(buffer, &addr))
+            break;
+        }
+
+        case SC_ADDRESS_TYPE_CONTRACT:
+            PARSER_CHECK(buffer_advance(buffer, 32))
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+bool parse_scv_object(buffer_t *buffer) {
+    uint32_t type;
+    PARSER_CHECK(buffer_read32(buffer, &type))
+    switch (type) {
+        case SCO_VEC:
+            parse_sc_vec(buffer);
+            break;
+        case SCO_MAP: {
+            uint32_t size;
+            PARSER_CHECK(buffer_read32(buffer, &size))
+            for (uint32_t i = 0; i < size; i++) {
+                // SCMapEntry key
+                PARSER_CHECK(parse_sc_val(buffer))
+                // SCMapEntry value
+                PARSER_CHECK(parse_sc_val(buffer))
+            }
+            break;
+        }
+        case SCO_U64:
+        case SCO_I64:
+            PARSER_CHECK(buffer_advance(buffer, 8))
+            break;
+        case SCO_U128:
+        case SCO_I128:
+            PARSER_CHECK(buffer_advance(buffer, 8))
+            PARSER_CHECK(buffer_advance(buffer, 8))
+            break;
+        case SCO_BYTES: {
+            uint32_t size;
+            PARSER_CHECK(buffer_read32(buffer, &size))
+            PARSER_CHECK(buffer_advance(buffer, size))
+            break;
+        }
+        case SCO_CONTRACT_CODE: {
+            uint32_t code_type;
+            PARSER_CHECK(buffer_read32(buffer, &code_type))
+            switch (code_type) {
+                case SCCONTRACT_CODE_WASM_REF:
+                    PARSER_CHECK(buffer_advance(buffer, 32))
+                    break;
+                case SCCONTRACT_CODE_TOKEN:
+                    break;
+                default:
+                    return false;
+            }
+            break;
+        }
+        case SCO_ADDRESS:
+            PARSER_CHECK(parse_sc_address(buffer))
+            break;
+        case SCO_NONCE_KEY:
+            PARSER_CHECK(buffer_advance(buffer, 32))
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+bool parse_sc_val(buffer_t *buffer) {
+    uint32_t type;
+    PARSER_CHECK(buffer_read32(buffer, &type))
+    switch (type) {
+        case SCV_U63:
+            PARSER_CHECK(buffer_advance(buffer, 8))
+            break;
+        case SCV_U32:
+            PARSER_CHECK(buffer_advance(buffer, 4))
+            break;
+        case SCV_I32:
+            PARSER_CHECK(buffer_advance(buffer, 4))
+            break;
+        case SCV_STATIC:
+            PARSER_CHECK(buffer_advance(buffer, 4))
+            break;
+        case SCV_OBJECT: {
+            bool has_object;
+            PARSER_CHECK(buffer_read_bool(buffer, &has_object))
+            if (has_object) {
+                PARSER_CHECK(parse_scv_object(buffer))
+            }
+            break;
+        }
+        case SCV_SYMBOL: {
+            size_t size;
+            const uint8_t name[30];  // TODO
+            PARSER_CHECK(parse_binary_string_ptr(buffer, (const uint8_t **) name, &size, 10))
+            break;
+        }
+        case SCV_BITSET:
+            PARSER_CHECK(buffer_advance(buffer, 8))
+            break;
+        case SCV_STATUS:
+            // TODO: should we implement this?
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
+bool parse_authorized_invocation(buffer_t *buffer) {
+    // contract id
+    PARSER_CHECK(buffer_advance(buffer, 32))
+    // function name
+    size_t size;
+    // const uint8_t *name;
+    const uint8_t name[30];  // TODO
+
+    PARSER_CHECK(
+        parse_binary_string_ptr(buffer, (const uint8_t **) name, &size, MEMO_TEXT_MAX_SIZE))
+    // arguments
+    PARSER_CHECK(parse_sc_vec(buffer))
+    // sub invocations
+    PARSER_CHECK(buffer_read32(buffer, &size))
+    for (uint32_t i = 0; i < size; i++) {
+        PARSER_CHECK(parse_authorized_invocation(buffer))
+    }
+
+    return true;
+}
+
+bool parse_contract_auth(buffer_t *buffer) {
+    // address_with_nonce
+    bool has_address_with_nonce;
+    PARSER_CHECK(buffer_read_bool(buffer, &has_address_with_nonce))
+    if (has_address_with_nonce) {
+        PARSER_CHECK(parse_sc_address(buffer))
+        PARSER_CHECK(buffer_advance(buffer, 8))
+    }
+    // root_invocation
+    PARSER_CHECK(parse_authorized_invocation(buffer))
+    // signature_args
+    PARSER_CHECK(parse_sc_vec(buffer))
+    return true;
+}
+
+bool parse_footprint(buffer_t *buffer) {
+    uint32_t size;
+    ledger_key_t key;
+    // read_only
+    PARSER_CHECK(buffer_read32(buffer, &size))
+    PRINTF("parse_footprint, read_only, size = %d\n", size);
+
+    for (uint32_t i = 0; i < size; i++) {
+        PRINTF("parse_footprint, read_only, i = %d\n", i);
+        PARSER_CHECK(parse_ledger_key(buffer, &key))
+    }
+    // read_write
+    PRINTF("parse_footprint, read_write, size = %d\n", size);
+    PARSER_CHECK(buffer_read32(buffer, &size))
+    for (uint32_t i = 0; i < size; i++) {
+        PARSER_CHECK(parse_ledger_key(buffer, &key))
+    }
+    return true;
+}
+
+bool parse_invoke_host_function(buffer_t *buffer, invoke_host_function_op *op) {
+    PRINTF("parse_invoke_host_function\n");
+    uint32_t host_function_type;
+    PARSER_CHECK(buffer_read32(buffer, &host_function_type))
+    if (host_function_type != HOST_FUNCTION_TYPE_INVOKE_CONTRACT) {
+        return false;
+    }
+    uint32_t args_len;
+    PARSER_CHECK(buffer_read32(buffer, &args_len))
+    if (args_len < 2) {
+        return false;
+    }
+
+    PRINTF("parse_invoke_host_function, args_len: %d\n", args_len);
+
+    // parse contract id
+    PRINTF("parse_invoke_host_function, contract id\n");
+    // TODO: check type
+    PARSER_CHECK(buffer_can_read(buffer, 4))  // val type
+    PARSER_CHECK(buffer_advance(buffer, 4))
+    PARSER_CHECK(buffer_can_read(buffer, 4))  // has obj?
+    PARSER_CHECK(buffer_advance(buffer, 4))
+    PARSER_CHECK(buffer_can_read(buffer, 4))  // obj type
+    PARSER_CHECK(buffer_advance(buffer, 4))
+    PARSER_CHECK(buffer_can_read(buffer, 4))  // hash size
+    PARSER_CHECK(buffer_advance(buffer, 4))
+    op->contract_id = buffer->ptr + buffer->offset;
+    PARSER_CHECK(buffer_advance(buffer, 32))
+
+    // parse function name
+    PRINTF("parse_invoke_host_function, function name\n");
+    PARSER_CHECK(buffer_can_read(buffer, 4))  // val type
+    PARSER_CHECK(buffer_advance(buffer, 4))
+    size_t size;
+    PARSER_CHECK(parse_binary_string_ptr(buffer, (const uint8_t **) &op->function_name, &size, 10))
+    op->function_name_size = size;
+
+    // parse other args
+    PRINTF("parse_invoke_host_function, other args\n");
+    for (uint32_t i = 2; i < args_len; i++) {
+        PRINTF("parse_invoke_host_function, other args, i: %d\n", i);
+        PARSER_CHECK(parse_sc_val(buffer))
+    }
+
+    // parse footpoint
+    PRINTF("parse_invoke_host_function, footpoint\n");
+
+    PARSER_CHECK(parse_footprint(buffer));
+
+    // parse contract auth
+    PRINTF("parse_invoke_host_function,  contract auth\n");
+
+    PARSER_CHECK(buffer_read32(buffer, &size))
+    for (uint32_t i = 0; i < size; i++) {
+        PARSER_CHECK(parse_contract_auth(buffer))
+    }
     return true;
 }
 
@@ -894,6 +1152,8 @@ bool parse_operation(buffer_t *buffer, operation_t *operation) {
             return parse_liquidity_pool_deposit(buffer, &operation->liquidity_pool_deposit_op);
         case OPERATION_TYPE_LIQUIDITY_POOL_WITHDRAW:
             return parse_liquidity_pool_withdraw(buffer, &operation->liquidity_pool_withdraw_op);
+        case OPERATION_TYPE_INVOKE_HOST_FUNCTION:
+            return parse_invoke_host_function(buffer, &operation->invoke_host_function_op);
         default:
             return false;
     }
