@@ -75,6 +75,12 @@ bool print_ed25519_signed_payload(const ed25519_signed_payload_t *signed_payload
                                   uint8_t num_chars_l,
                                   uint8_t num_chars_r);
 
+bool print_sc_address(const sc_address_t *sc_address,
+                      char *out,
+                      size_t out_len,
+                      uint8_t num_chars_l,
+                      uint8_t num_chars_r);
+
 bool print_muxed_account(const muxed_account_t *muxed_account,
                          char *out,
                          size_t out_len,

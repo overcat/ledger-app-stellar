@@ -55,3 +55,5 @@ int handler_sign_tx(buffer_t *cdata, bool is_first_chunk, bool more);
  *
  */
 int handler_sign_tx_hash(buffer_t *cdata);
+
+int handle_sign_soroban_authorization(buffer_t *cdata, bool is_first_chunk, bool more);

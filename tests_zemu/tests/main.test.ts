@@ -34,7 +34,7 @@ test.each(models)("app version ($dev.name)", async ({ dev, startText }) => {
     const transport = await sim.getTransport();
     const str = new Str(transport);
     const result = await str.getAppConfiguration();
-    expect(result.version).toBe("5.0.2");
+    expect(result.version).toBe("5.0.3");
   } finally {
     await sim.close();
   }
@@ -213,9 +213,12 @@ describe("transactions", () => {
             ButtonKind.InfoButton,
             ButtonKind.NavRightButton,
             ButtonKind.ToggleSettingButton2,
+            ButtonKind.ToggleSettingButton3,
           ]);
           await sim.navigate(".", `tx`, settingNav.schedule, true, false);
         } else {
+          await sim.clickRight();
+          await sim.clickBoth(undefined, false);
           await sim.clickRight();
           await sim.clickBoth(undefined, false);
           await sim.clickRight();
@@ -259,12 +262,13 @@ describe("transactions", () => {
         const settingNav = new TouchNavigation([
           ButtonKind.InfoButton,
           ButtonKind.NavRightButton,
-          ButtonKind.ToggleSettingButton2,
+          ButtonKind.ToggleSettingButton3,
         ]);
         await sim.navigate(".", `reject tx`, settingNav.schedule, true, false);
       } else {
         await sim.clickRight();
         await sim.clickBoth(undefined, false);
+        await sim.clickRight();
         await sim.clickRight();
         await sim.clickBoth(undefined, false);
       }
@@ -307,12 +311,13 @@ describe("transactions", () => {
         const settingNav = new TouchNavigation([
           ButtonKind.InfoButton,
           ButtonKind.NavRightButton,
-          ButtonKind.ToggleSettingButton2,
+          ButtonKind.ToggleSettingButton3,
         ]);
         await sim.navigate(".", `reject fee bump tx`, settingNav.schedule, true, false);
       } else {
         await sim.clickRight();
         await sim.clickBoth(undefined, false);
+        await sim.clickRight();
         await sim.clickRight();
         await sim.clickBoth(undefined, false);
       }
