@@ -15,6 +15,7 @@
  *  limitations under the License.
  *****************************************************************************/
 #ifdef HAVE_BAGL
+#include <bsd/string.h>
 #include "./ui.h"
 #include "../globals.h"
 #include "../settings.h"

@@ -15,8 +15,8 @@
  *  limitations under the License.
  *****************************************************************************/
 #ifdef HAVE_BAGL
-#include <stdbool.h>  // bool
-#include <string.h>   // memset
+#include <stdbool.h>     // bool
+#include <bsd/string.h>  // memset
 
 #include "./ui.h"
 #include "./action/validate.h"

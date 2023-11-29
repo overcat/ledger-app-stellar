@@ -9,6 +9,7 @@
 // ------------------------------------------------------------------------- //
 
 #define ENCODED_ED25519_PUBLIC_KEY_LENGTH  57
+#define ENCODED_CONTRACT_KEY_LENGTH        57
 #define ENCODED_ED25519_PRIVATE_KEY_LENGTH 57
 #define ENCODED_HASH_X_KEY_LENGTH          57
 #define ENCODED_PRE_AUTH_TX_KEY_LENGTH     57
@@ -18,6 +19,7 @@
 #define RAW_ED25519_PRIVATE_KEY_SIZE 32
 #define RAW_HASH_X_KEY_SIZE          32
 #define RAW_PRE_AUTH_TX_KEY_SIZE     32
+#define RAW_CONTRACT_KEY_SIZE        32
 #define RAW_MUXED_ACCOUNT_KEY_SIZE   40
 
 #define VERSION_BYTE_ED25519_PUBLIC_KEY     6 << 3
@@ -26,6 +28,7 @@
 #define VERSION_BYTE_HASH_X                 23 << 3
 #define VERSION_BYTE_MUXED_ACCOUNT          12 << 3
 #define VERSION_BYTE_ED25519_SIGNED_PAYLOAD 15 << 3
+#define VERSION_BYTE_CONTRACT               2 << 3
 
 #define ASSET_CODE_MAX_LENGTH        13
 #define CLAIMANTS_MAX_LENGTH         10
@@ -96,6 +99,9 @@ typedef enum {
     OPERATION_TYPE_SET_TRUST_LINE_FLAGS = 21,
     OPERATION_TYPE_LIQUIDITY_POOL_DEPOSIT = 22,
     OPERATION_TYPE_LIQUIDITY_POOL_WITHDRAW = 23,
+    OPERATION_INVOKE_HOST_FUNCTION = 24,
+    OPERATION_EXTEND_FOOTPRINT_TTL = 25,
+    OPERATION_RESTORE_FOOTPRINT = 26
 } operation_type_t;
 
 typedef const uint8_t *account_id_t;
@@ -381,7 +387,11 @@ typedef enum {
     OFFER = 2,
     DATA = 3,
     CLAIMABLE_BALANCE = 4,
-    LIQUIDITY_POOL = 5
+    LIQUIDITY_POOL = 5,
+    CONTRACT_DATA = 6,
+    CONTRACT_CODE = 7,
+    CONFIG_SETTING = 8,
+    TTL = 9
 } ledger_entry_type_t;
 
 typedef struct {
@@ -467,6 +477,173 @@ typedef struct {
     int64_t min_amount_b;  // minimum amount of second asset to withdraw
 } liquidity_pool_withdraw_op_t;
 
+typedef enum SCValType {
+    SCV_BOOL = 0,
+    SCV_VOID = 1,
+    SCV_ERROR = 2,
+    SCV_U32 = 3,
+    SCV_I32 = 4,
+    SCV_U64 = 5,
+    SCV_I64 = 6,
+    SCV_TIMEPOINT = 7,
+    SCV_DURATION = 8,
+    SCV_U128 = 9,
+    SCV_I128 = 10,
+    SCV_U256 = 11,
+    SCV_I256 = 12,
+    SCV_BYTES = 13,
+    SCV_STRING = 14,
+    SCV_SYMBOL = 15,
+    SCV_VEC = 16,
+    SCV_MAP = 17,
+    SCV_ADDRESS = 18,
+    SCV_CONTRACT_INSTANCE = 19,
+    SCV_LEDGER_KEY_CONTRACT_INSTANCE = 20,
+    SCV_LEDGER_KEY_NONCE = 21
+} sc_val_type_t;
+
+typedef struct {
+    uint64_t hi;
+    uint64_t lo;
+} uint128_parts_t;
+
+typedef struct {
+    int64_t hi;
+    uint64_t lo;
+} int128_parts_t;
+
+typedef struct {
+    uint64_t hi_hi;
+    uint64_t hi_lo;
+    uint64_t lo_hi;
+    uint64_t lo_lo;
+} uint256_parts_t;
+
+typedef struct {
+    int64_t hi_hi;
+    uint64_t hi_lo;
+    uint64_t lo_hi;
+    uint64_t lo_lo;
+} int256_parts_t;
+
+typedef enum { SC_ADDRESS_TYPE_ACCOUNT = 0, SC_ADDRESS_TYPE_CONTRACT = 1 } sc_address_type_t;
+
+typedef struct {
+    sc_address_type_t type;
+    const uint8_t *address;  // account id or contract id
+} sc_address_t;
+
+typedef struct {
+    sc_val_type_t type;
+    union {
+        bool b;  // SCV_BOOL
+        // SCError error; // SCV_ERROR, NOT SUPPORT
+        uint32_t u32;            // SCV_U32
+        int32_t i32;             // SCV_I32
+        uint64_t u64;            // SCV_U64
+        int64_t i64;             // SCV_I64
+        time_point_t timepoint;  // SCV_TIMEPOINT
+        duration_t duration;     // SCV_DURATION
+        uint128_parts_t u128;    // SCV_U128
+        int128_parts_t i128;     // SCV_I128
+        uint256_parts_t u256;    // SCV_U256
+        int256_parts_t i256;     // SCV_I256
+        // SC_BYTES
+        const char *str;  // SCV_STRING
+        const char *sym;  // SCV_SYMBOL
+        struct {
+            bool vec_present;
+            uint8_t vec_size;
+        } vec;
+
+        sc_address_t address;  // SCV_ADDRESS
+        int64_t nonce_key;     // SCV_LEDGER_KEY_NONCE
+    };
+} sc_val_t;
+
+typedef enum {
+    SOROBAN_CREDENTIALS_SOURCE_ACCOUNT = 0,
+    SOROBAN_CREDENTIALS_ADDRESS = 1
+} soroban_credentials_type_t;
+
+typedef enum {
+    SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN = 0,
+    SOROBAN_AUTHORIZED_FUNCTION_TYPE_CREATE_CONTRACT_HOST_FN = 1
+} soroban_authorized_function_type_t;
+
+typedef enum {
+    SOROBAN_CONTRACT_TYPE_UNVERIFIED = 0,
+    SOROBAN_CONTRACT_TYPE_ASSET_APPROVE = 1,
+    SOROBAN_CONTRACT_TYPE_ASSET_TRANSFER = 2,
+} soroban_contract_type_t;
+
+#define MAX_CONTRACT_NAME_LEN       13
+#define SOROBAN_ASSET_CONTRACTS_NUM 3
+
+typedef struct contract_t {
+    char name[MAX_CONTRACT_NAME_LEN];
+    uint8_t address[RAW_CONTRACT_KEY_SIZE];
+} contract_t;
+
+typedef struct {
+    sc_address_t address;
+    size_t parameters_position;
+    struct {
+        uint8_t text_size;
+        const uint8_t *text;
+    } function_name;
+    soroban_contract_type_t contract_type;
+    union {
+        struct {
+            sc_address_t from;
+            sc_address_t spender;
+            uint64_t amount;
+            uint32_t expiration_ledger;
+            char asset_code[ASSET_CODE_MAX_LENGTH];
+        } asset_approve;
+        struct {
+            sc_address_t from;
+            sc_address_t to;
+            uint64_t amount;
+            char asset_code[ASSET_CODE_MAX_LENGTH];
+        } asset_transfer;
+    };
+} invoke_contract_args_t;
+
+typedef enum {
+    HOST_FUNCTION_TYPE_INVOKE_CONTRACT = 0,
+    HOST_FUNCTION_TYPE_CREATE_CONTRACT = 1,
+    HOST_FUNCTION_TYPE_UPLOAD_CONTRACT_WASM = 2
+} host_function_type_t;
+
+typedef enum ContractIDPreimageType {
+    CONTRACT_ID_PREIMAGE_FROM_ADDRESS = 0,
+    CONTRACT_ID_PREIMAGE_FROM_ASSET = 1
+} contract_id_preimage_type_t;
+
+typedef enum {
+    CONTRACT_EXECUTABLE_WASM = 0,
+    CONTRACT_EXECUTABLE_STELLAR_ASSET = 1
+} contract_executable_type;
+
+typedef struct {
+    host_function_type_t host_function_type;
+    invoke_contract_args_t invoke_contract_args;
+} invoke_host_function_op_t;
+
+typedef struct {
+    int32_t v;
+} extension_point_t;
+
+typedef struct {
+    extension_point_t ext;
+    uint32_t extend_to;
+} extend_footprint_ttl_op_t;
+
+typedef struct {
+    extension_point_t ext;
+} restore_footprint_op_t;
+
 typedef struct {
     muxed_account_t source_account;
     uint8_t type;
@@ -494,6 +671,9 @@ typedef struct {
         set_trust_line_flags_op_t set_trust_line_flags_op;
         liquidity_pool_deposit_op_t liquidity_pool_deposit_op;
         liquidity_pool_withdraw_op_t liquidity_pool_withdraw_op;
+        invoke_host_function_op_t invoke_host_function_op;
+        extend_footprint_ttl_op_t extend_footprint_ttl_op;
+        restore_footprint_op_t restore_footprint_op;
     };
 } operation_t;
 
