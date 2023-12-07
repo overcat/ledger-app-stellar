@@ -920,15 +920,18 @@ bool parse_liquidity_pool_withdraw(buffer_t *buffer, liquidity_pool_withdraw_op_
     PARSER_CHECK(buffer_read64(buffer, (uint64_t *) &op->min_amount_b))
     return true;
 }
-bool parse_extension_point(buffer_t *buffer, extension_point_t *ext) {
-    PARSER_CHECK(buffer_read32(buffer, &ext->v))
+
+bool parse_extension_point(buffer_t *buffer) {
+    PARSER_CHECK(buffer_advance(buffer, 4))
     return true;
 }
 
 bool parse_restore_footprint(buffer_t *buffer, restore_footprint_op_t *op) {
-    PARSER_CHECK(parse_extension_point(buffer, &op->ext))
+    (void) op;
+    PARSER_CHECK(parse_extension_point(buffer))
     return true;
 }
+
 bool parse_soroban_resource(buffer_t *buffer) {
     // footprint
     uint32_t len;
@@ -950,8 +953,7 @@ bool parse_soroban_resource(buffer_t *buffer) {
 }
 
 bool parse_soroban_transaction_data(buffer_t *buffer) {
-    extension_point_t ext;
-    PARSER_CHECK(parse_extension_point(buffer, &ext))
+    PARSER_CHECK(parse_extension_point(buffer))
     PARSER_CHECK(parse_soroban_resource(buffer))
     PARSER_CHECK(buffer_advance(buffer, 8))  // resource_fee
     return true;
@@ -1216,7 +1218,7 @@ bool parse_invoke_host_function(buffer_t *buffer, invoke_host_function_op_t *op)
 }
 
 bool parse_extend_footprint_ttl(buffer_t *buffer, extend_footprint_ttl_op_t *op) {
-    PARSER_CHECK(parse_extension_point(buffer, &op->ext))
+    PARSER_CHECK(parse_extension_point(buffer))
     PARSER_CHECK(buffer_read32(buffer, &op->extend_to))
     return true;
 }

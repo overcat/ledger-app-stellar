@@ -502,64 +502,12 @@ typedef enum SCValType {
     SCV_LEDGER_KEY_NONCE = 21
 } sc_val_type_t;
 
-typedef struct {
-    uint64_t hi;
-    uint64_t lo;
-} uint128_parts_t;
-
-typedef struct {
-    int64_t hi;
-    uint64_t lo;
-} int128_parts_t;
-
-typedef struct {
-    uint64_t hi_hi;
-    uint64_t hi_lo;
-    uint64_t lo_hi;
-    uint64_t lo_lo;
-} uint256_parts_t;
-
-typedef struct {
-    int64_t hi_hi;
-    uint64_t hi_lo;
-    uint64_t lo_hi;
-    uint64_t lo_lo;
-} int256_parts_t;
-
 typedef enum { SC_ADDRESS_TYPE_ACCOUNT = 0, SC_ADDRESS_TYPE_CONTRACT = 1 } sc_address_type_t;
 
 typedef struct {
     sc_address_type_t type;
     const uint8_t *address;  // account id or contract id
 } sc_address_t;
-
-typedef struct {
-    sc_val_type_t type;
-    union {
-        bool b;  // SCV_BOOL
-        // SCError error; // SCV_ERROR, NOT SUPPORT
-        uint32_t u32;            // SCV_U32
-        int32_t i32;             // SCV_I32
-        uint64_t u64;            // SCV_U64
-        int64_t i64;             // SCV_I64
-        time_point_t timepoint;  // SCV_TIMEPOINT
-        duration_t duration;     // SCV_DURATION
-        uint128_parts_t u128;    // SCV_U128
-        int128_parts_t i128;     // SCV_I128
-        uint256_parts_t u256;    // SCV_U256
-        int256_parts_t i256;     // SCV_I256
-        // SC_BYTES
-        const char *str;  // SCV_STRING
-        const char *sym;  // SCV_SYMBOL
-        struct {
-            bool vec_present;
-            uint8_t vec_size;
-        } vec;
-
-        sc_address_t address;  // SCV_ADDRESS
-        int64_t nonce_key;     // SCV_LEDGER_KEY_NONCE
-    };
-} sc_val_t;
 
 typedef enum {
     SOROBAN_CREDENTIALS_SOURCE_ACCOUNT = 0,
@@ -571,11 +519,6 @@ typedef enum {
     SOROBAN_AUTHORIZED_FUNCTION_TYPE_CREATE_CONTRACT_HOST_FN = 1
 } soroban_authorized_function_type_t;
 
-typedef enum {
-    SOROBAN_CONTRACT_TYPE_UNVERIFIED = 0,
-    SOROBAN_CONTRACT_TYPE_ASSET_APPROVE = 1,
-    SOROBAN_CONTRACT_TYPE_ASSET_TRANSFER = 2,
-} soroban_contract_type_t;
 
 #define MAX_CONTRACT_NAME_LEN       13
 #define SOROBAN_ASSET_CONTRACTS_NUM 3
@@ -584,6 +527,12 @@ typedef struct contract_t {
     char name[MAX_CONTRACT_NAME_LEN];
     uint8_t address[RAW_CONTRACT_KEY_SIZE];
 } contract_t;
+
+typedef enum {
+    SOROBAN_CONTRACT_TYPE_UNVERIFIED = 0,
+    SOROBAN_CONTRACT_TYPE_ASSET_APPROVE = 1,
+    SOROBAN_CONTRACT_TYPE_ASSET_TRANSFER = 2,
+} soroban_contract_type_t;
 
 typedef struct {
     sc_address_t address;
@@ -632,16 +581,10 @@ typedef struct {
 } invoke_host_function_op_t;
 
 typedef struct {
-    int32_t v;
-} extension_point_t;
-
-typedef struct {
-    extension_point_t ext;
     uint32_t extend_to;
 } extend_footprint_ttl_op_t;
 
 typedef struct {
-    extension_point_t ext;
 } restore_footprint_op_t;
 
 typedef struct {
