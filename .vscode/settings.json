@@ -1,7 +1,23 @@
 {
     "files.associations": {
         "*.h": "c",
-        "random": "c"
+        "random": "c",
+        "array": "c",
+        "chrono": "c",
+        "compare": "c",
+        "functional": "c",
+        "ratio": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "algorithm": "c",
+        "*.tcc": "c",
+        "deque": "c",
+        "iterator": "c",
+        "memory": "c",
+        "numeric": "c",
+        "queue": "c",
+        "vector": "c"
     },
     "C_Cpp.clang_format_path": "/usr/bin/clang-format",
     "editor.formatOnSave": true
