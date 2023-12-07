@@ -848,7 +848,7 @@ bool parse_ledger_key(buffer_t *buffer, ledger_key_t *ledger_key) {
             sc_address_t sc_address;
             PARSER_CHECK(parse_sc_address(buffer, &sc_address))  // contract
             PARSER_CHECK(parse_scval(buffer))                    // key
-            PARSER_CHECK(buffer_advance(buffer, 32))             // durability
+            PARSER_CHECK(buffer_advance(buffer, 4))              // durability
             return true;
         }
         case CONTRACT_CODE:
@@ -922,7 +922,11 @@ bool parse_liquidity_pool_withdraw(buffer_t *buffer, liquidity_pool_withdraw_op_
 }
 
 bool parse_extension_point(buffer_t *buffer) {
-    PARSER_CHECK(buffer_advance(buffer, 4))
+    uint32_t v;
+    PARSER_CHECK(buffer_read32(buffer, &v))
+    if (v != 0) {
+        return false;
+    }
     return true;
 }
 
@@ -932,7 +936,7 @@ bool parse_restore_footprint(buffer_t *buffer, restore_footprint_op_t *op) {
     return true;
 }
 
-bool parse_soroban_resource(buffer_t *buffer) {
+bool parse_soroban_resources(buffer_t *buffer) {
     // footprint
     uint32_t len;
     ledger_key_t ledger_key;
@@ -953,14 +957,14 @@ bool parse_soroban_resource(buffer_t *buffer) {
 }
 
 bool parse_soroban_transaction_data(buffer_t *buffer) {
+    PRINTF("parse_soroban_transaction_data invoked\n");
     PARSER_CHECK(parse_extension_point(buffer))
-    PARSER_CHECK(parse_soroban_resource(buffer))
+    PARSER_CHECK(parse_soroban_resources(buffer))
     PARSER_CHECK(buffer_advance(buffer, 8))  // resource_fee
     return true;
 }
 
 bool parse_soroban_credentials(buffer_t *buffer) {
-    PRINTF("parse_soroban_credentials invoked\n");
     uint32_t type;
     PARSER_CHECK(buffer_read32(buffer, &type))
     switch (type) {
@@ -1028,7 +1032,6 @@ const contract_t SOROBAN_ASSET_CONTRACTS[SOROBAN_ASSET_CONTRACTS_NUM] = {
               0x65, 0xf4, 0x99, 0xef, 0x29, 0xe5, 0x64, 0x77, 0xe4, 0x96}}};
 
 bool parse_invoke_contract_args(buffer_t *buffer, invoke_contract_args_t *args) {
-    PRINTF("parse_invoke_contract_args invoke start\n");
     // contractAddress
     PARSER_CHECK(parse_sc_address(buffer, &args->address))
     // functionName
@@ -1142,13 +1145,10 @@ bool parse_invoke_contract_args(buffer_t *buffer, invoke_contract_args_t *args) 
         default:
             return false;
     }
-
-    PRINTF("parse_invoke_contract_args invoke end\n");
     return true;
 }
 
 bool parse_soroban_authorized_function(buffer_t *buffer) {
-    PRINTF("parse_soroban_authorized_function invoked\n");
     uint32_t type;
     PARSER_CHECK(buffer_read32(buffer, &type))
     switch (type) {
@@ -1165,13 +1165,10 @@ bool parse_soroban_authorized_function(buffer_t *buffer) {
         default:
             return false;
     }
-
-    PRINTF("parse_soroban_authorized_function invoked end\n");
     return true;
 }
 
 bool parse_soroban_authorized_invocation(buffer_t *buffer) {
-    PRINTF("parse_soroban_authorized_invocation invoked\n");
     // function
     PARSER_CHECK(parse_soroban_authorized_function(buffer))
 
@@ -1185,10 +1182,8 @@ bool parse_soroban_authorized_invocation(buffer_t *buffer) {
 }
 
 bool parse_soroban_authorization_entry(buffer_t *buffer) {
-    PRINTF("parse_soroban_authorization_entry invoked start\n");
     PARSER_CHECK(parse_soroban_credentials(buffer))
     PARSER_CHECK(parse_soroban_authorized_invocation(buffer))
-    PRINTF("parse_soroban_authorization_entry invoked end\n");
     return true;
 }
 
@@ -1225,7 +1220,6 @@ bool parse_extend_footprint_ttl(buffer_t *buffer, extend_footprint_ttl_op_t *op)
 
 bool parse_operation(buffer_t *buffer, operation_t *operation) {
     PRINTF("parse_operation: offset=%d\n", buffer->offset);
-
     explicit_bzero(operation, sizeof(operation_t));
     uint32_t op_type;
 
