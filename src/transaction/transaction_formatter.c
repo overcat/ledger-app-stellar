@@ -1766,9 +1766,26 @@ static void format_invoke_host_function_contract_id(tx_ctx_t *tx_ctx) {
 
 static void format_invoke_host_function(tx_ctx_t *tx_ctx) {
     (void) tx_ctx;
-    STRLCPY(G.ui.detail_caption, "Soroban", DETAIL_CAPTION_MAX_LENGTH);
-    STRLCPY(G.ui.detail_value, "Invoke Smart Contract", DETAIL_VALUE_MAX_LENGTH);
-    push_to_formatter_stack(&format_invoke_host_function_contract_id);
+    switch (tx_ctx->tx_details.op_details.invoke_host_function_op.host_function_type) {
+        case HOST_FUNCTION_TYPE_INVOKE_CONTRACT:
+            STRLCPY(G.ui.detail_caption, "Soroban", DETAIL_CAPTION_MAX_LENGTH);
+            STRLCPY(G.ui.detail_value, "Invoke Smart Contract", DETAIL_VALUE_MAX_LENGTH);
+            push_to_formatter_stack(&format_invoke_host_function_contract_id);
+            break;
+        case HOST_FUNCTION_TYPE_CREATE_CONTRACT:
+            STRLCPY(G.ui.detail_caption, "Soroban", DETAIL_CAPTION_MAX_LENGTH);
+            STRLCPY(G.ui.detail_value, "Create Smart Contract", DETAIL_VALUE_MAX_LENGTH);
+            format_operation_source_prepare(tx_ctx);
+            break;
+        case HOST_FUNCTION_TYPE_UPLOAD_CONTRACT_WASM:
+            STRLCPY(G.ui.detail_caption, "Soroban", DETAIL_CAPTION_MAX_LENGTH);
+            STRLCPY(G.ui.detail_value, "U Smart Contract", DETAIL_VALUE_MAX_LENGTH);
+            format_operation_source_prepare(tx_ctx);
+            break;
+        default:
+            THROW(SW_TX_FORMATTING_FAIL);
+            return;
+    }
 }
 
 static void format_extend_footprint_ttl(tx_ctx_t *tx_ctx) {
