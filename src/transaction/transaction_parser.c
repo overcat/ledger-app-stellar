@@ -1443,9 +1443,9 @@ bool parse_transaction_envelope_type(buffer_t *buffer, envelope_type_t *envelope
 
 bool parse_network(buffer_t *buffer, uint8_t *network) {
     PARSER_CHECK(buffer_can_read(buffer, HASH_SIZE))
-    if (memcmp(buffer->ptr, NETWORK_ID_PUBLIC_HASH, HASH_SIZE) == 0) {
+    if (memcmp(buffer->ptr + buffer->offset, NETWORK_ID_PUBLIC_HASH, HASH_SIZE) == 0) {
         *network = NETWORK_TYPE_PUBLIC;
-    } else if (memcmp(buffer->ptr, NETWORK_ID_TEST_HASH, HASH_SIZE) == 0) {
+    } else if (memcmp(buffer->ptr + buffer->offset, NETWORK_ID_TEST_HASH, HASH_SIZE) == 0) {
         *network = NETWORK_TYPE_TEST;
     } else {
         *network = NETWORK_TYPE_UNKNOWN;
