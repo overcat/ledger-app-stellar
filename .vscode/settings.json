@@ -17,7 +17,9 @@
         "memory": "c",
         "numeric": "c",
         "queue": "c",
-        "vector": "c"
+        "vector": "c",
+        "ostream": "c",
+        "ranges": "c"
     },
     "C_Cpp.clang_format_path": "/usr/bin/clang-format",
     "editor.formatOnSave": true

@@ -1753,7 +1753,7 @@ static void format_invoke_host_function_func_name(tx_ctx_t *tx_ctx) {
 }
 
 static void format_invoke_host_function_contract_id(tx_ctx_t *tx_ctx) {
-    STRLCPY(G.ui.detail_caption, "Contract Address", DETAIL_CAPTION_MAX_LENGTH);
+    STRLCPY(G.ui.detail_caption, "Contract ID", DETAIL_CAPTION_MAX_LENGTH);
 
     FORMATTER_CHECK(print_sc_address(
         &tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args.address,

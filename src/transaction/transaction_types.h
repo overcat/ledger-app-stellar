@@ -72,6 +72,7 @@ typedef enum {
 typedef enum {
     ENVELOPE_TYPE_TX = 2,
     ENVELOPE_TYPE_TX_FEE_BUMP = 5,
+    ENVELOPE_TYPE_SOROBAN_AUTHORIZATION = 9
 } envelope_type_t;
 
 typedef enum {
@@ -478,14 +479,12 @@ typedef struct {
 } liquidity_pool_withdraw_op_t;
 
 // ************************* Soroban ************************* //
-#define CONTRACT_ID_PREIMAGE_FROM_ADDRESS                        0
-#define CONTRACT_ID_PREIMAGE_FROM_ASSET                          1
-#define CONTRACT_EXECUTABLE_WASM                                 0
-#define CONTRACT_EXECUTABLE_STELLAR_ASSET                        1
-#define SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN             0
-#define SOROBAN_AUTHORIZED_FUNCTION_TYPE_CREATE_CONTRACT_HOST_FN 1
-#define MAX_CONTRACT_NAME_LEN                                    13
-#define SOROBAN_ASSET_CONTRACTS_NUM                              3
+#define CONTRACT_ID_PREIMAGE_FROM_ADDRESS 0
+#define CONTRACT_ID_PREIMAGE_FROM_ASSET   1
+#define CONTRACT_EXECUTABLE_WASM          0
+#define CONTRACT_EXECUTABLE_STELLAR_ASSET 1
+#define MAX_CONTRACT_NAME_LEN             13
+#define SOROBAN_ASSET_CONTRACTS_NUM       3
 
 typedef enum SCValType {
     SCV_BOOL = 0,
@@ -579,6 +578,11 @@ typedef struct {
 } restore_footprint_op_t;
 
 // ************************* Soroban ************************* //
+
+typedef enum {
+    SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN = 0,
+    SOROBAN_AUTHORIZED_FUNCTION_TYPE_CREATE_CONTRACT_HOST_FN = 1
+} soroban_authorization_function_type_t;
 
 typedef struct {
     muxed_account_t source_account;

@@ -1495,3 +1495,32 @@ bool parse_tx_xdr(const uint8_t *data, size_t size, tx_ctx_t *tx_ctx) {
     tx_ctx->offset = offset;
     return true;
 }
+
+bool parse_auth(const uint8_t *data, size_t size, auth_ctx_t *auth_ctx) {
+    buffer_t buffer = {data, size, 0};
+    uint32_t type;
+    PARSER_CHECK(buffer_read32(&buffer, &type))
+    if (type != ENVELOPE_TYPE_SOROBAN_AUTHORIZATION) {
+        return false;
+    }
+    PARSER_CHECK(parse_network(&buffer, &auth_ctx->network))
+    PARSER_CHECK(buffer_read64(&buffer, &auth_ctx->nonce))
+    PARSER_CHECK(buffer_read32(&buffer, &auth_ctx->signature_exp_ledger))
+    PARSER_CHECK(buffer_read32(&buffer, &type))
+
+    auth_ctx->function_type = type;
+    switch (type) {
+        case SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN: {
+            // contractFn
+            PARSER_CHECK(parse_invoke_contract_args(&buffer, &auth_ctx->invoke_contract_args));
+            break;
+        }
+        case SOROBAN_AUTHORIZED_FUNCTION_TYPE_CREATE_CONTRACT_HOST_FN:
+            // createContractHostFn
+            PARSER_CHECK(parse_create_contract_args(&buffer));
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
