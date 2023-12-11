@@ -144,7 +144,6 @@ static bool get_next_data(char *caption, char *value, bool forward) {
                         strlcpy(value,
                                 "Unverified contract, will not display details",
                                 DETAIL_VALUE_MAX_LENGTH);
-
                         break;
                     case 7:
                         strlcpy(caption, "Hash", DETAIL_CAPTION_MAX_LENGTH);
