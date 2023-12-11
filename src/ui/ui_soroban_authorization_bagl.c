@@ -146,6 +146,12 @@ static bool get_next_data(char *caption, char *value, bool forward) {
                                 DETAIL_VALUE_MAX_LENGTH);
 
                         break;
+                    case 7:
+                        strlcpy(caption, "Hash", DETAIL_CAPTION_MAX_LENGTH);
+                        if (!format_hex(G_context.hash, 32, value, DETAIL_VALUE_MAX_LENGTH)) {
+                            return io_send_sw(SW_DISPLAY_TRANSACTION_HASH_FAIL);
+                        }
+                        break;
                     default:
                         return false;
                 }
