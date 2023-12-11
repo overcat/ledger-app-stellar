@@ -1779,7 +1779,7 @@ static void format_invoke_host_function(tx_ctx_t *tx_ctx) {
             break;
         case HOST_FUNCTION_TYPE_UPLOAD_CONTRACT_WASM:
             STRLCPY(G.ui.detail_caption, "Soroban", DETAIL_CAPTION_MAX_LENGTH);
-            STRLCPY(G.ui.detail_value, "U Smart Contract", DETAIL_VALUE_MAX_LENGTH);
+            STRLCPY(G.ui.detail_value, "Upload Smart Contract Wasm", DETAIL_VALUE_MAX_LENGTH);
             format_operation_source_prepare(tx_ctx);
             break;
         default:
