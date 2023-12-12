@@ -443,6 +443,10 @@ bool parse_path_payment_strict_receive(buffer_t *buffer, path_payment_strict_rec
     if (path_len > PATH_PAYMENT_MAX_PATH_LENGTH) {
         return false;
     }
+    for (uint32_t i = 0; i < path_len; i++) {
+        asset_t tmp_asset;
+        PARSER_CHECK(parse_asset(buffer, &tmp_asset))
+    }
     return true;
 }
 
@@ -612,6 +616,10 @@ bool parse_path_payment_strict_send(buffer_t *buffer, path_payment_strict_send_o
     PARSER_CHECK(buffer_read32(buffer, (uint32_t *) &path_len))
     if (path_len > PATH_PAYMENT_MAX_PATH_LENGTH) {
         return false;
+    }
+    for (uint32_t i = 0; i < path_len; i++) {
+        asset_t tmp_asset;
+        PARSER_CHECK(parse_asset(buffer, &tmp_asset))
     }
     return true;
 }
@@ -1370,6 +1378,7 @@ bool check_operations(buffer_t *buffer, uint8_t op_count) {
 bool parse_transaction_ext(buffer_t *buffer) {
     uint32_t ext;
     PARSER_CHECK(buffer_read32(buffer, &ext))
+    PRINTF("parse_transaction_ext: ext=%d\n", ext);
     switch (ext) {
         case 0:
             // void
