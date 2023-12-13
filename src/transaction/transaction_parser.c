@@ -1338,7 +1338,7 @@ bool parse_operation(buffer_t *buffer, operation_t *operation) {
                     HOST_FUNCTION_TYPE_INVOKE_CONTRACT &&
                 operation->invoke_host_function_op.invoke_contract_args.contract_type ==
                     SOROBAN_CONTRACT_TYPE_UNVERIFIED &&
-                !HAS_SETTING(S_HASH_SIGNING_ENABLED)) {
+                !HAS_SETTING(S_CUSTOM_CONTRACTS_ENABLED)) {
                 THROW(SW_CUSTOM_CONTRACT_MODE_NOT_ENABLED);
             }
 #endif
