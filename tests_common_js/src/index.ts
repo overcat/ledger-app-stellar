@@ -14,7 +14,6 @@ import {
   LiquidityPoolAsset,
   MuxedAccount,
   LiquidityPoolId,
-  nativeToScVal
 } from "stellar-base";
 
 // mnemonic: 'other base behind follow wet put glad muscle unlock sell income october'
@@ -1209,6 +1208,381 @@ export function opLiquidityPoolWithdraw() {
         amount: "5000",
         minAmountA: "10000",
         minAmountB: "20000",
+        source: kp0.publicKey(),
+      })
+    )
+    .build();
+}
+
+export function opInvokeHostFunctionUploadWasm() {
+  /**
+   * soroban --very-verbose contract deploy \
+    --wasm ./increment/target/wasm32-unknown-unknown/release/soroban_increment_contract.wasm  \
+    --source SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK \
+    --rpc-url https://soroban-testnet.stellar.org \
+    --network-passphrase 'Test SDF Network ; September 2015'
+   */
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQAAcdcALZ/tAAAAAQAAAAAAAAAAAAAAAQAAAAEAAAAA6TOIu/0vvRGAbdC9Wc6pB558xwznseFU8RTN/k5Gbs0AAAAYAAAAAgAAAkwAYXNtAQAAAAEVBGACfn4BfmADfn5+AX5gAAF+YAAAAhkEAWwBMAAAAWwBMQAAAWwBXwABAWwBOAAAAwUEAgMDAwUDAQAQBhkDfwFBgIDAAAt/AEGAgMAAC38AQYCAwAALBzUFBm1lbW9yeQIACWluY3JlbWVudAAEAV8ABwpfX2RhdGFfZW5kAwELX19oZWFwX2Jhc2UDAgqnAQSSAQIBfwF+QQAhAAJAAkACQEKOutCvhtQ5QgIQgICAgABCAVINAEKOutCvhtQ5QgIQgYCAgAAiAUL/AYNCBFINASABQiCIpyEACyAAQQFqIgBFDQFCjrrQr4bUOSAArUIghkIEhCIBQgIQgoCAgAAaQoSAgICgBkKEgICAwAwQg4CAgAAaIAEPCwAACxCFgICAAAALCQAQhoCAgAAACwQAAAALAgALAHMOY29udHJhY3RzcGVjdjAAAAAAAAAAQEluY3JlbWVudCBpbmNyZW1lbnRzIGFuIGludGVybmFsIGNvdW50ZXIsIGFuZCByZXR1cm5zIHRoZSB2YWx1ZS4AAAAJaW5jcmVtZW50AAAAAAAAAAAAAAEAAAAEAB4RY29udHJhY3RlbnZtZXRhdjAAAAAAAAAAFAAAADkAcw5jb250cmFjdG1ldGF2MAAAAAAAAAAFcnN2ZXIAAAAAAAAGMS43My4wAAAAAAAAAAAACHJzc2RrdmVyAAAAMzIwLjAuMC1yYzIjMDk5MjQxM2Y5YjA1ZTViZmIxZjg3MmJjZTk5ZTg5ZDkxMjliMmU2MQAAAAAAAAAAAQAAAAAAAAABAAAABxPhaFi95KtQoAbb8HFyKI8+wZ2GQNGoUwFsYMFcJREXAAAAAAAYZjYAAAKwAAAAAAAAAAAAAAAMAAAAAU5Gbs0AAABA4Qgx6lFhpvkLoEOoHEV2O/B0+ALtMwuX4Kh3iPmI4CtYXBFNMUmKDnKvsiZE/moqNtxyD8Ce0ZblL6rhjCCaBA==";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opInvokeHostFunctionCreateContractWasmId() {
+  /**
+ * soroban --very-verbose contract deploy \
+  --wasm ./increment/target/wasm32-unknown-unknown/release/soroban_increment_contract.wasm  \
+  --source SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network-passphrase 'Test SDF Network ; September 2015'
+ */
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQAB7iQALZ/tAAAAAgAAAAAAAAAAAAAAAQAAAAAAAAAYAAAAAQAAAAAAAAAAAAAAAOkziLv9L70RgG3QvVnOqQeefMcM57HhVPEUzf5ORm7NqDN1ZmOZBULw7RQpLx1hMwklzeYyod2tz7XGLOGlAnsAAAAAE+FoWL3kq1CgBtvwcXIojz7BnYZA0ahTAWxgwVwlERcAAAABAAAAAAAAAAEAAAAAAAAAAAAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzagzdWZjmQVC8O0UKS8dYTMJJc3mMqHdrc+1xizhpQJ7AAAAABPhaFi95KtQoAbb8HFyKI8+wZ2GQNGoUwFsYMFcJREXAAAAAAAAAAEAAAAAAAAAAQAAAAcT4WhYveSrUKAG2/BxciiPPsGdhkDRqFMBbGDBXCURFwAAAAEAAAAGAAAAASDg5o1dgbNGaFKMfUZ6NtiiHIsKeZQjTddBtARypKjgAAAAFAAAAAEAAbYGAAAC4AAAAGgAAAAAAACh8wAAAAFORm7NAAAAQB9/IVcMlt2Uo2f5SSwDUXEimmUOQMqgz2baGQlL6a4aH/Jyqpm5sGsraNzDlbu6W5VIcHkEtuGVY+d7kPNFHwU=";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opInvokeHostFunctionCreateContractNewAsset() {
+  // import time
+
+  // from stellar_sdk import (
+  //     Keypair,
+  //     Network,
+  //     SorobanServer,
+  //     StrKey,
+  //     TransactionBuilder,
+  // )
+  // from stellar_sdk import xdr as stellar_xdr
+  // from stellar_sdk.exceptions import PrepareTransactionException
+  // from stellar_sdk.soroban_rpc import GetTransactionStatus, SendTransactionStatus
+
+  // secret = "SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK"
+  // rpc_server_url = "https://soroban-testnet.stellar.org:443"
+  // network_passphrase = Network.TESTNET_NETWORK_PASSPHRASE
+
+  // kp = Keypair.from_secret(secret)
+  // soroban_server = SorobanServer(rpc_server_url)
+  // source = soroban_server.load_account(kp.public_key)
+
+  // tx = (
+  //     TransactionBuilder(source, network_passphrase)
+  //     .add_time_bounds(0, 0)
+  //     .append_create_stellar_asset_contract_from_address_op(address=kp.public_key, salt=b'b' * 32)
+  //     .build()
+  // )
+
+  // try:
+  //     tx = soroban_server.prepare_transaction(tx)
+  // except PrepareTransactionException as e:
+  //     print(f"Got exception: {e.simulate_transaction_response}")
+  //     raise e
+
+  // print(tx.to_xdr())
+
+  // tx.sign(kp)
+
+  // send_transaction_data = soroban_server.send_transaction(tx)
+  // print(f"sent transaction: {send_transaction_data}")
+  // if send_transaction_data.status != SendTransactionStatus.PENDING:
+  //     raise Exception("send transaction failed")
+
+  // while True:
+  //     print("waiting for transaction to be confirmed...")
+  //     get_transaction_data = soroban_server.get_transaction(send_transaction_data.hash)
+  //     if get_transaction_data.status != GetTransactionStatus.NOT_FOUND:
+  //         break
+  //     time.sleep(3)
+
+  // print(f"transaction: {get_transaction_data}")
+
+  // if get_transaction_data.status == GetTransactionStatus.SUCCESS:
+  //     assert get_transaction_data.result_meta_xdr is not None
+  //     transaction_meta = stellar_xdr.TransactionMeta.from_xdr(
+  //         get_transaction_data.result_meta_xdr
+  //     )
+  //     result = transaction_meta.v3.soroban_meta.return_value.address.contract_id.hash  # type: ignore
+  //     contract_id = StrKey.encode_contract(result)
+  //     print(f"contract id: {contract_id}")
+  // else:
+  //     print(f"Transaction failed: {get_transaction_data.result_xdr}")
+
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQABUbYALZ/tAAAACQAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAGAAAAAEAAAAAAAAAAAAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzWJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiAAAAAQAAAAEAAAAAAAAAAQAAAAAAAAAAAAAAAOkziLv9L70RgG3QvVnOqQeefMcM57HhVPEUzf5ORm7NYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAGAAAAAcvTlxX+jf+Wwc2iMbKTJ0grjza4AYUnQZV22IgmkHYTAAAAFAAAAAEAAXf0AAAAMAAAAEgAAAAAAACSxAAAAAA=";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opInvokeHostFunctionCreateContractWrapAsset() {
+  /**
+ * soroban contract deploy \
+  --wasm ./increment/target/wasm32-unknown-unknown/release/soroban_increment_contract.wasm  \
+  --source SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK \
+  --rpc-url https://soroban-testnet.stellar.org \
+  --network-passphrase 'Test SDF Network ; September 2015'
+ */
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQAGY4YALZ/tAAAAAwAAAAAAAAAAAAAAAQAAAAAAAAAYAAAAAQAAAAEAAAACTEVER0VSAAAAAAAAAAAAAOLGgQ+bUJsmS/JcX/hJdFvPzHVliRnd2jaspzLmaehVAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAABgAAAAH1fw7+2c6SK9x+aL47FkMYOgIZwujCGmG2Ve5S7lUfFgAAABQAAAABAAOluwAAADAAAAHsAAAAAAABWgMAAAABTkZuzQAAAEAScsqMRjAFnQsVoZjDSfYjEGAOPXjgZaFvxaN1EuE0q/zuF+uukosgx7UaxNR7R1xvz0Rk27VtC+E0X/SNcWIC";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opInvokeHostFunctionUnverifiedContract() {
+  /**
+   * soroban --very-verbose contract invoke \
+    --id CAQOBZUNLWA3GRTIKKGH2RT2G3MKEHELBJ4ZII2N25A3IBDSUSUOAUQU  \
+    --source SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK \
+    --rpc-url https://soroban-testnet.stellar.org \
+    --network-passphrase 'Test SDF Network ; September 2015' \
+    -- \
+    increment
+   */
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQABxvgALZ/tAAAABAAAAAAAAAAAAAAAAQAAAAAAAAAYAAAAAAAAAAEg4OaNXYGzRmhSjH1GejbYohyLCnmUI03XQbQEcqSo4AAAAAlpbmNyZW1lbnQAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAcT4WhYveSrUKAG2/BxciiPPsGdhkDRqFMBbGDBXCURFwAAAAEAAAAGAAAAASDg5o1dgbNGaFKMfUZ6NtiiHIsKeZQjTddBtARypKjgAAAAFAAAAAEAGQovAAADSAAAAIQAAAAAAAANSQAAAAFORm7NAAAAQMeYqOX1HnwH9heyEgce5OcjQEakm+vFFqtXBEdaHMqDvMBVCcy4u8WhVAbOWCvNQf+/wjIaj03un47sRyLJtwc=";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opInvokeHostFunctionUnverifiedContractWithTransferFunction() {
+  // from stellar_sdk import Keypair, Network, SorobanServer, TransactionBuilder, scval
+
+  // rpc_server_url = "https://soroban-testnet.stellar.org:443"
+  // soroban_server = SorobanServer(rpc_server_url)
+  // network_passphrase = Network.TESTNET_NETWORK_PASSPHRASE
+
+  // alice_kp = Keypair.from_secret(
+  //     "SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK"
+  // )  # GDUTHCF37UX32EMANXIL2WOOVEDZ47GHBTT3DYKU6EKM37SOIZXM2FN7
+  // bob_kp = Keypair.from_secret(
+  //     "SAE52G23WPAS7MIR2OFGILLICLXXR4K6HSXZHMKD6C33JCAVVILIWYAA"
+  // )  # GDRMNAIPTNIJWJSL6JOF76CJORN47TDVMWERTXO2G2WKOMXGNHUFL5QX
+  // native_token_contract_id = "CAQOBZUNLWA3GRTIKKGH2RT2G3MKEHELBJ4ZII2N25A3IBDSUSUOAUQU"
+
+  // alice_source = soroban_server.load_account(alice_kp.public_key)
+
+  // args = [
+  //     scval.to_address(alice_kp.public_key),  # from
+  //     scval.to_address(bob_kp.public_key),  # spender
+  //     scval.to_int128(100 * 10 ** 7),  # amount, 100 XLM
+  //     scval.to_uint32(2990592)
+  // ]
+
+  // tx = (
+  //     TransactionBuilder(alice_source, network_passphrase, base_fee=500)
+  //     .add_time_bounds(0, 0)
+  //     .append_invoke_contract_function_op(
+  //         contract_id=native_token_contract_id,
+  //         function_name="approve",
+  //         parameters=args,
+  //     )
+  //     .build()
+  // )
+
+  // print(f"Unsigned XDR:\n{tx.to_xdr()}")
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQAAAfQALZ/tAAAACAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAGAAAAAAAAAABIODmjV2Bs0ZoUox9Rno22KIciwp5lCNN10G0BHKkqOAAAAAHYXBwcm92ZQAAAAAEAAAAEgAAAAAAAAAA6TOIu/0vvRGAbdC9Wc6pB558xwznseFU8RTN/k5Gbs0AAAASAAAAAAAAAADixoEPm1CbJkvyXF/4SXRbz8x1ZYkZ3do2rKcy5mnoVQAAAAoAAAAAAAAAAAAAAAA7msoAAAAAAwAtogAAAAAAAAAAAAAAAAA=";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opInvokeHostFunctionUnverifiedContractWithApproveFunction() {
+  //   from stellar_sdk import Keypair, Network, SorobanServer, TransactionBuilder, scval
+
+  // rpc_server_url = "https://soroban-testnet.stellar.org:443"
+  // soroban_server = SorobanServer(rpc_server_url)
+  // network_passphrase = Network.TESTNET_NETWORK_PASSPHRASE
+
+  // alice_kp = Keypair.from_secret(
+  //     "SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK"
+  // )  # GDUTHCF37UX32EMANXIL2WOOVEDZ47GHBTT3DYKU6EKM37SOIZXM2FN7
+  // bob_kp = Keypair.from_secret(
+  //     "SAE52G23WPAS7MIR2OFGILLICLXXR4K6HSXZHMKD6C33JCAVVILIWYAA"
+  // )  # GDRMNAIPTNIJWJSL6JOF76CJORN47TDVMWERTXO2G2WKOMXGNHUFL5QX
+  // native_token_contract_id = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"
+
+  // alice_source = soroban_server.load_account(alice_kp.public_key)
+
+  // args = [
+  //     scval.to_address(alice_kp.public_key),  # from
+  //     scval.to_address(bob_kp.public_key),  # spender
+  //     scval.to_int128(100 * 10 ** 7),  # amount, 100 XLM
+  //     scval.to_uint32(2990592)
+  // ]
+
+  // tx = (
+  //     TransactionBuilder(alice_source, network_passphrase, base_fee=500)
+  //     .add_time_bounds(0, 0)
+  //     .append_invoke_contract_function_op(
+  //         contract_id=native_token_contract_id,
+  //         function_name="mock",
+  //         parameters=args,
+  //     )
+  //     .build()
+  // )
+
+  // print(f"Unsigned XDR:\n{tx.to_xdr()}")
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQAAAfQALZ/tAAAACAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAGAAAAAAAAAAB15KLcsJwPM/q9+uf9O9NUEpVqLl5/JtFDqLIQrTRzmEAAAAEbW9jawAAAAQAAAASAAAAAAAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQAAABIAAAAAAAAAAOLGgQ+bUJsmS/JcX/hJdFvPzHVliRnd2jaspzLmaehVAAAACgAAAAAAAAAAAAAAADuaygAAAAADAC2iAAAAAAAAAAAAAAAAAA==";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opInvokeHostFunctionAssetTransfer() {
+  // import time
+
+  // from stellar_sdk import Keypair, Network, SorobanServer, TransactionBuilder, scval
+  // from stellar_sdk import xdr as stellar_xdr
+  // from stellar_sdk.exceptions import PrepareTransactionException
+  // from stellar_sdk.soroban_rpc import GetTransactionStatus, SendTransactionStatus
+
+  // rpc_server_url = "https://soroban-testnet.stellar.org:443"
+  // soroban_server = SorobanServer(rpc_server_url)
+  // network_passphrase = Network.TESTNET_NETWORK_PASSPHRASE
+
+  // alice_kp = Keypair.from_secret(
+  //     "SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK"
+  // )  # GDUTHCF37UX32EMANXIL2WOOVEDZ47GHBTT3DYKU6EKM37SOIZXM2FN7
+  // bob_kp = Keypair.from_secret(
+  //     "SAE52G23WPAS7MIR2OFGILLICLXXR4K6HSXZHMKD6C33JCAVVILIWYAA"
+  // )  # GDRMNAIPTNIJWJSL6JOF76CJORN47TDVMWERTXO2G2WKOMXGNHUFL5QX
+  // native_token_contract_id = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"
+
+  // alice_source = soroban_server.load_account(alice_kp.public_key)
+
+  // args = [
+  //     scval.to_address(alice_kp.public_key),  # from
+  //     scval.to_address(bob_kp.public_key),  # to
+  //     scval.to_int128(100 * 10 ** 7),  # amount, 100 XLM
+  // ]
+
+  // tx = (
+  //     TransactionBuilder(alice_source, network_passphrase, base_fee=500)
+  //     .add_time_bounds(0, 0)
+  //     .append_invoke_contract_function_op(
+  //         contract_id=native_token_contract_id,
+  //         function_name="transfer",
+  //         parameters=args,
+  //     )
+  //     .build()
+  // )
+
+  // try:
+  //     tx = soroban_server.prepare_transaction(tx)
+  // except PrepareTransactionException as e:
+  //     print(f"Got exception: {e.simulate_transaction_response}")
+  //     raise e
+
+  // print(f"Unsigned XDR:\n{tx.to_xdr()}")
+
+  // tx.sign(alice_kp)
+  // print(f"Signed XDR:\n{tx.to_xdr()}")
+
+  // send_transaction_data = soroban_server.send_transaction(tx)
+  // print(f"sent transaction: {send_transaction_data}")
+  // if send_transaction_data.status != SendTransactionStatus.PENDING:
+  //     raise Exception("send transaction failed")
+  // while True:
+  //     print("waiting for transaction to be confirmed...")
+  //     get_transaction_data = soroban_server.get_transaction(send_transaction_data.hash)
+  //     if get_transaction_data.status != GetTransactionStatus.NOT_FOUND:
+  //         break
+  //     time.sleep(3)
+
+  // print(f"transaction: {get_transaction_data}")
+
+  // if get_transaction_data.status == GetTransactionStatus.SUCCESS:
+  //     assert get_transaction_data.result_meta_xdr is not None
+  //     transaction_meta = stellar_xdr.TransactionMeta.from_xdr(
+  //         get_transaction_data.result_meta_xdr
+  //     )
+  //     if transaction_meta.v3.soroban_meta.return_value.type == stellar_xdr.SCValType.SCV_VOID:  # type: ignore[union-attr]
+  //         print("send success")
+  // else:
+  //     print(f"Transaction failed: {get_transaction_data.result_xdr}")
+
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQACOxwALZ/tAAAABgAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAGAAAAAAAAAAB15KLcsJwPM/q9+uf9O9NUEpVqLl5/JtFDqLIQrTRzmEAAAAIdHJhbnNmZXIAAAADAAAAEgAAAAAAAAAA6TOIu/0vvRGAbdC9Wc6pB558xwznseFU8RTN/k5Gbs0AAAASAAAAAAAAAADixoEPm1CbJkvyXF/4SXRbz8x1ZYkZ3do2rKcy5mnoVQAAAAoAAAAAAAAAAAAAAAA7msoAAAAAAQAAAAAAAAAAAAAAAdeSi3LCcDzP6vfrn/TvTVBKVai5efybRQ6iyEK00c5hAAAACHRyYW5zZmVyAAAAAwAAABIAAAAAAAAAAOkziLv9L70RgG3QvVnOqQeefMcM57HhVPEUzf5ORm7NAAAAEgAAAAAAAAAA4saBD5tQmyZL8lxf+El0W8/MdWWJGd3aNqynMuZp6FUAAAAKAAAAAAAAAAAAAAAAO5rKAAAAAAAAAAABAAAAAAAAAAEAAAAGAAAAAdeSi3LCcDzP6vfrn/TvTVBKVai5efybRQ6iyEK00c5hAAAAFAAAAAEAAAACAAAAAAAAAADixoEPm1CbJkvyXF/4SXRbz8x1ZYkZ3do2rKcy5mnoVQAAAAAAAAAA6TOIu/0vvRGAbdC9Wc6pB558xwznseFU8RTN/k5Gbs0ABBGDAAACFAAAAOwAAAAAAAAAOwAAAAA=";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opInvokeHostFunctionAssetApprove() {
+  // import time
+
+  // from stellar_sdk import Keypair, Network, SorobanServer, TransactionBuilder, scval
+  // from stellar_sdk import xdr as stellar_xdr
+  // from stellar_sdk.exceptions import PrepareTransactionException
+  // from stellar_sdk.soroban_rpc import GetTransactionStatus, SendTransactionStatus
+
+  // rpc_server_url = "https://soroban-testnet.stellar.org:443"
+  // soroban_server = SorobanServer(rpc_server_url)
+  // network_passphrase = Network.TESTNET_NETWORK_PASSPHRASE
+
+  // alice_kp = Keypair.from_secret(
+  //     "SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK"
+  // )  # GDUTHCF37UX32EMANXIL2WOOVEDZ47GHBTT3DYKU6EKM37SOIZXM2FN7
+  // bob_kp = Keypair.from_secret(
+  //     "SAE52G23WPAS7MIR2OFGILLICLXXR4K6HSXZHMKD6C33JCAVVILIWYAA"
+  // )  # GDRMNAIPTNIJWJSL6JOF76CJORN47TDVMWERTXO2G2WKOMXGNHUFL5QX
+  // native_token_contract_id = "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"
+
+  // alice_source = soroban_server.load_account(alice_kp.public_key)
+
+  // args = [
+  //     scval.to_address(alice_kp.public_key),  # from
+  //     scval.to_address(bob_kp.public_key),  # spender
+  //     scval.to_int128(100 * 10 ** 7),  # amount, 100 XLM
+  //     scval.to_uint32(2990592)
+  // ]
+
+  // tx = (
+  //     TransactionBuilder(alice_source, network_passphrase, base_fee=500)
+  //     .add_time_bounds(0, 0)
+  //     .append_invoke_contract_function_op(
+  //         contract_id=native_token_contract_id,
+  //         function_name="approve",
+  //         parameters=args,
+  //     )
+  //     .build()
+  // )
+
+  // try:
+  //     tx = soroban_server.prepare_transaction(tx)
+  // except PrepareTransactionException as e:
+  //     print(f"Got exception: {e.simulate_transaction_response}")
+  //     raise e
+
+  // print(f"Unsigned XDR:\n{tx.to_xdr()}")
+
+  // tx.sign(alice_kp)
+  // print(f"Signed XDR:\n{tx.to_xdr()}")
+
+  // send_transaction_data = soroban_server.send_transaction(tx)
+  // print(f"sent transaction: {send_transaction_data}")
+  // if send_transaction_data.status != SendTransactionStatus.PENDING:
+  //     raise Exception("send transaction failed")
+  // while True:
+  //     print("waiting for transaction to be confirmed...")
+  //     get_transaction_data = soroban_server.get_transaction(send_transaction_data.hash)
+  //     if get_transaction_data.status != GetTransactionStatus.NOT_FOUND:
+  //         break
+  //     time.sleep(3)
+
+  // print(f"transaction: {get_transaction_data}")
+
+  // if get_transaction_data.status == GetTransactionStatus.SUCCESS:
+  //     assert get_transaction_data.result_meta_xdr is not None
+  //     transaction_meta = stellar_xdr.TransactionMeta.from_xdr(
+  //         get_transaction_data.result_meta_xdr
+  //     )
+  //     if transaction_meta.v3.soroban_meta.return_value.type == stellar_xdr.SCValType.SCV_VOID:  # type: ignore[union-attr]
+  //         print("send success")
+  // else:
+  //     print(f"Transaction failed: {get_transaction_data.result_xdr}")
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQADJwsALZ/tAAAABwAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAGAAAAAAAAAAB15KLcsJwPM/q9+uf9O9NUEpVqLl5/JtFDqLIQrTRzmEAAAAHYXBwcm92ZQAAAAAEAAAAEgAAAAAAAAAA6TOIu/0vvRGAbdC9Wc6pB558xwznseFU8RTN/k5Gbs0AAAASAAAAAAAAAADixoEPm1CbJkvyXF/4SXRbz8x1ZYkZ3do2rKcy5mnoVQAAAAoAAAAAAAAAAAAAAAA7msoAAAAAAwAtogAAAAABAAAAAAAAAAAAAAAB15KLcsJwPM/q9+uf9O9NUEpVqLl5/JtFDqLIQrTRzmEAAAAHYXBwcm92ZQAAAAAEAAAAEgAAAAAAAAAA6TOIu/0vvRGAbdC9Wc6pB558xwznseFU8RTN/k5Gbs0AAAASAAAAAAAAAADixoEPm1CbJkvyXF/4SXRbz8x1ZYkZ3do2rKcy5mnoVQAAAAoAAAAAAAAAAAAAAAA7msoAAAAAAwAtogAAAAAAAAAAAQAAAAAAAAABAAAABgAAAAHXkotywnA8z+r365/0701QSlWouXn8m0UOoshCtNHOYQAAABQAAAABAAAAAQAAAAYAAAAB15KLcsJwPM/q9+uf9O9NUEpVqLl5/JtFDqLIQrTRzmEAAAAQAAAAAQAAAAIAAAAPAAAACUFsbG93YW5jZQAAAAAAABEAAAABAAAAAgAAAA8AAAAEZnJvbQAAABIAAAAAAAAAAOkziLv9L70RgG3QvVnOqQeefMcM57HhVPEUzf5ORm7NAAAADwAAAAdzcGVuZGVyAAAAABIAAAAAAAAAAOLGgQ+bUJsmS/JcX/hJdFvPzHVliRnd2jaspzLmaehVAAAAAAAEyB8AAAFYAAABLAAAAAAAAHDaAAAAAA==";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opExtendFootprintTTL() {
+  /**
+   * soroban --very-verbose contract bump --ledgers-to-expire 130816 \
+    --durability persistent --id CACEIKVZTU7Z6VKNISE3OO5MXSCKUC7HC2FNCWRO2HJMWSUPUWHDLSJE \
+    --source SAIYWGGWU2WMXYDSK33UBQBMBDKU4TTJVY3ZIFF24H2KQDR7RQW5KAEK \
+    --rpc-url https://soroban-testnet.stellar.org:443 \
+    --network-passphrase 'Test SDF Network ; September 2015'
+   */
+  const xdr = "AAAAAgAAAADpM4i7/S+9EYBt0L1ZzqkHnnzHDOex4VTxFM3+TkZuzQAAn9IALZ/tAAAABQAAAAAAAAAAAAAAAQAAAAAAAAAZAAAAAAAB/wAAAAABAAAAAAAAAAEAAAAGAAAAAQREKrmdP59VTUSJtzusvISqC+cWitFaLtHSy0qPpY41AAAAFAAAAAEAAAAAAAAAAAAAAJgAAAAAAAAAAAAAdogAAAABTkZuzQAAAEAQIX09qLt+SIcA7sOc7XGSWjK98FFURHW77g8uWm4lQirDqZU51B0uatCZe90mSt+RK7r7it3I92JSUL1Ba+EA";
+  return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
+}
+
+export function opRestoreFootprint() {
+  // TODO: add soroban resource
+  return getCommonTransactionBuilder()
+    .addOperation(
+      Operation.restoreFootprint({
         source: kp0.publicKey(),
       })
     )

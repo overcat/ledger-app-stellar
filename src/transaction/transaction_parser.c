@@ -773,16 +773,20 @@ bool parse_scval(buffer_t *buffer) {
         case SCV_STRING:
         case SCV_SYMBOL: {
             uint32_t data_len;
+            PRINTF("str/bytes data_len: %d\n", data_len);
             PARSER_CHECK(buffer_read32(buffer, &data_len))
-            PARSER_CHECK(buffer_can_read(buffer, num_bytes(data_len)))
+            PARSER_CHECK(buffer_advance(buffer, num_bytes(data_len)))
+            PRINTF("str/bytes data parsed\n");
             break;
         }
         case SCV_VEC: {
             bool vec_exists;
             PARSER_CHECK(buffer_read_bool(buffer, &vec_exists))
+            PRINTF("vec_exists: %d\n", vec_exists);
             if (vec_exists) {
                 uint32_t vec_len;
                 PARSER_CHECK(buffer_read32(buffer, &vec_len))
+                PRINTF("vec_len: %d\n", vec_len);
                 for (uint32_t i = 0; i < vec_len; i++) {
                     PARSER_CHECK(parse_scval(buffer))
                 }
@@ -792,9 +796,11 @@ bool parse_scval(buffer_t *buffer) {
         case SCV_MAP: {
             bool map_exists;
             PARSER_CHECK(buffer_read_bool(buffer, &map_exists))
+            PRINTF("map_exists: %d\n", map_exists);
             if (map_exists) {
                 uint32_t map_len;
                 PARSER_CHECK(buffer_read32(buffer, &map_len))
+                PRINTF("map_len: %d\n", map_len);
                 for (uint32_t i = 0; i < map_len; i++) {
                     PARSER_CHECK(parse_scval(buffer))
                     PARSER_CHECK(parse_scval(buffer))
@@ -861,7 +867,8 @@ bool parse_ledger_key(buffer_t *buffer, ledger_key_t *ledger_key) {
             return true;
         }
         case CONTRACT_CODE:
-            return false;
+            PARSER_CHECK(buffer_advance(buffer, 32))
+            return true;
         case CONFIG_SETTING:
             return false;
         case TTL:
@@ -953,11 +960,13 @@ bool parse_soroban_resources(buffer_t *buffer) {
     for (uint32_t i = 0; i < len; i++) {
         PARSER_CHECK(parse_ledger_key(buffer, &ledger_key))
     }
+    PRINTF("read_only array parsed\n");
 
     PARSER_CHECK(buffer_read32(buffer, (uint32_t *) &len))  // read_write array length
     for (uint32_t i = 0; i < len; i++) {
         PARSER_CHECK(parse_ledger_key(buffer, &ledger_key))
     }
+    PRINTF("read_write array parsed\n");
 
     PARSER_CHECK(buffer_advance(buffer, 4))  // instructions
     PARSER_CHECK(buffer_advance(buffer, 4))  // read_bytes
@@ -968,8 +977,11 @@ bool parse_soroban_resources(buffer_t *buffer) {
 bool parse_soroban_transaction_data(buffer_t *buffer) {
     PRINTF("parse_soroban_transaction_data invoked\n");
     PARSER_CHECK(parse_extension_point(buffer))
+    PRINTF("parse_extension_point parsed\n");
     PARSER_CHECK(parse_soroban_resources(buffer))
+    PRINTF("soroban_resources parsed\n");
     PARSER_CHECK(buffer_advance(buffer, 8))  // resource_fee
+    PRINTF("resource_fee parsed\n");
     return true;
 }
 
@@ -1199,14 +1211,20 @@ bool parse_invoke_host_function(buffer_t *buffer, invoke_host_function_op_t *op)
     // hostFunction
     uint32_t host_func_type;
     PARSER_CHECK(buffer_read32(buffer, &host_func_type))
+    PRINTF("host_func_type=%d\n", host_func_type);
     switch (host_func_type) {
         case HOST_FUNCTION_TYPE_INVOKE_CONTRACT:
             PARSER_CHECK(parse_invoke_contract_args(buffer, &op->invoke_contract_args))
             break;
         case HOST_FUNCTION_TYPE_CREATE_CONTRACT:
+            PARSER_CHECK(parse_create_contract_args(buffer))
             break;
-        case HOST_FUNCTION_TYPE_UPLOAD_CONTRACT_WASM:
+        case HOST_FUNCTION_TYPE_UPLOAD_CONTRACT_WASM: {
+            uint32_t data_len;
+            PARSER_CHECK(buffer_read32(buffer, &data_len))
+            PARSER_CHECK(buffer_advance(buffer, num_bytes(data_len)))
             break;
+        }
         default:
             break;
     }
@@ -1537,7 +1555,7 @@ bool parse_auth(const uint8_t *data, size_t size, auth_ctx_t *auth_ctx) {
         }
         case SOROBAN_AUTHORIZED_FUNCTION_TYPE_CREATE_CONTRACT_HOST_FN:
             // createContractHostFn
-            PARSER_CHECK(parse_create_contract_args(&buffer));
+            PARSER_CHECK(parse_create_contract_args(&buffer))
             break;
         default:
             return false;
