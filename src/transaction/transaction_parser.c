@@ -24,6 +24,7 @@
 #include "../types.h"
 #include "../sw.h"
 #include "../common/buffer.h"
+#include "../settings.h"
 
 #define PARSER_CHECK(x)         \
     {                           \
@@ -1080,7 +1081,6 @@ bool parse_invoke_contract_args(buffer_t *buffer, invoke_contract_args_t *args) 
     }
 
     PRINTF("args->contract_type=%d\n", args->contract_type);
-
     uint32_t args_len;
     PARSER_CHECK(buffer_read32(buffer, &args_len))
 
@@ -1314,8 +1314,17 @@ bool parse_operation(buffer_t *buffer, operation_t *operation) {
             return parse_liquidity_pool_deposit(buffer, &operation->liquidity_pool_deposit_op);
         case OPERATION_TYPE_LIQUIDITY_POOL_WITHDRAW:
             return parse_liquidity_pool_withdraw(buffer, &operation->liquidity_pool_withdraw_op);
-        case OPERATION_INVOKE_HOST_FUNCTION:
-            return parse_invoke_host_function(buffer, &operation->invoke_host_function_op);
+        case OPERATION_INVOKE_HOST_FUNCTION: {
+            PARSER_CHECK(parse_invoke_host_function(buffer, &operation->invoke_host_function_op))
+            if (operation->invoke_host_function_op.host_function_type ==
+                    HOST_FUNCTION_TYPE_INVOKE_CONTRACT &&
+                operation->invoke_host_function_op.invoke_contract_args.contract_type ==
+                    SOROBAN_CONTRACT_TYPE_UNVERIFIED &&
+                !HAS_SETTING(S_HASH_SIGNING_ENABLED)) {
+                THROW(SW_CUSTOM_CONTRACTS_MODE_NOT_ENABLED);
+            }
+            return true;
+        }
         case OPERATION_EXTEND_FOOTPRINT_TTL:
             return parse_extend_footprint_ttl(buffer, &operation->extend_footprint_ttl_op);
         case OPERATION_RESTORE_FOOTPRINT:
