@@ -1759,8 +1759,8 @@ static void format_invoke_host_function_contract_id(tx_ctx_t *tx_ctx) {
         &tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args.address,
         G.ui.detail_value,
         DETAIL_VALUE_MAX_LENGTH,
-        6,
-        6))
+        0,
+        0))
     push_to_formatter_stack(&format_invoke_host_function_func_name);
 }
 

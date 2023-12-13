@@ -1209,10 +1209,9 @@ bool parse_soroban_authorization_entry(buffer_t *buffer) {
 
 bool parse_invoke_host_function(buffer_t *buffer, invoke_host_function_op_t *op) {
     // hostFunction
-    uint32_t host_func_type;
-    PARSER_CHECK(buffer_read32(buffer, &host_func_type))
-    PRINTF("host_func_type=%d\n", host_func_type);
-    switch (host_func_type) {
+    PARSER_CHECK(buffer_read32(buffer, &op->host_function_type))
+    PRINTF("host_func_type=%d\n", &op->host_function_type);
+    switch (op->host_function_type) {
         case HOST_FUNCTION_TYPE_INVOKE_CONTRACT:
             PARSER_CHECK(parse_invoke_contract_args(buffer, &op->invoke_contract_args))
             break;
