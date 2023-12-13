@@ -213,12 +213,14 @@ describe("transactions", () => {
             ButtonKind.InfoButton,
             ButtonKind.NavRightButton,
             ButtonKind.ToggleSettingButton2,
+            ButtonKind.ToggleSettingButton3,
           ]);
           await sim.navigate(".", `tx`, settingNav.schedule, true, false);
         } else {
           await sim.clickRight();
           await sim.clickBoth(undefined, false);
           await sim.clickRight();
+          await sim.clickBoth(undefined, false);
           await sim.clickRight();
           await sim.clickBoth(undefined, false);
         }
@@ -260,7 +262,7 @@ describe("transactions", () => {
         const settingNav = new TouchNavigation([
           ButtonKind.InfoButton,
           ButtonKind.NavRightButton,
-          ButtonKind.ToggleSettingButton2,
+          ButtonKind.ToggleSettingButton3,
         ]);
         await sim.navigate(".", `reject tx`, settingNav.schedule, true, false);
       } else {
@@ -309,7 +311,7 @@ describe("transactions", () => {
         const settingNav = new TouchNavigation([
           ButtonKind.InfoButton,
           ButtonKind.NavRightButton,
-          ButtonKind.ToggleSettingButton2,
+          ButtonKind.ToggleSettingButton3,
         ]);
         await sim.navigate(".", `reject fee bump tx`, settingNav.schedule, true, false);
       } else {
