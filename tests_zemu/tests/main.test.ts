@@ -34,7 +34,7 @@ test.each(models)("app version ($dev.name)", async ({ dev, startText }) => {
     const transport = await sim.getTransport();
     const str = new Str(transport);
     const result = await str.getAppConfiguration();
-    expect(result.version).toBe("5.0.2");
+    expect(result.version).toBe("5.0.3");
   } finally {
     await sim.close();
   }
@@ -219,6 +219,7 @@ describe("transactions", () => {
           await sim.clickRight();
           await sim.clickBoth(undefined, false);
           await sim.clickRight();
+          await sim.clickRight();
           await sim.clickBoth(undefined, false);
         }
         const result = str.signTransaction("44'/148'/0'", tx.signatureBase());
@@ -265,6 +266,7 @@ describe("transactions", () => {
       } else {
         await sim.clickRight();
         await sim.clickBoth(undefined, false);
+        await sim.clickRight();
         await sim.clickRight();
         await sim.clickBoth(undefined, false);
       }
@@ -313,6 +315,7 @@ describe("transactions", () => {
       } else {
         await sim.clickRight();
         await sim.clickBoth(undefined, false);
+        await sim.clickRight();
         await sim.clickRight();
         await sim.clickBoth(undefined, false);
       }
