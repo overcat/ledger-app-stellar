@@ -1316,12 +1316,13 @@ bool parse_operation(buffer_t *buffer, operation_t *operation) {
             return parse_liquidity_pool_withdraw(buffer, &operation->liquidity_pool_withdraw_op);
         case OPERATION_INVOKE_HOST_FUNCTION: {
             PARSER_CHECK(parse_invoke_host_function(buffer, &operation->invoke_host_function_op))
+
             if (operation->invoke_host_function_op.host_function_type ==
                     HOST_FUNCTION_TYPE_INVOKE_CONTRACT &&
                 operation->invoke_host_function_op.invoke_contract_args.contract_type ==
                     SOROBAN_CONTRACT_TYPE_UNVERIFIED &&
                 !HAS_SETTING(S_HASH_SIGNING_ENABLED)) {
-                THROW(SW_CUSTOM_CONTRACTS_MODE_NOT_ENABLED);
+                THROW(SW_CUSTOM_CONTRACT_MODE_NOT_ENABLED);
             }
             return true;
         }
