@@ -1,3 +1,4 @@
+import exp = require("constants");
 import {
   Operation,
   TransactionBuilder,
@@ -13,6 +14,7 @@ import {
   LiquidityPoolAsset,
   MuxedAccount,
   LiquidityPoolId,
+  nativeToScVal
 } from "stellar-base";
 
 // mnemonic: 'other base behind follow wet put glad muscle unlock sell income october'
@@ -1211,30 +1213,6 @@ export function opLiquidityPoolWithdraw() {
       })
     )
     .build();
-}
-
-export function opInvokeHostFunctionUploadWasm() {
-}
-
-export function opInvokeHostFunctionCreateContract() {
-}
-
-export function opInvokeHostFunctionUnverifiedContract() {
-}
-
-export function opInvokeHostFunctionUnverifiedContractWithTransferFunction() {
-}
-
-export function opInvokeHostFunctionUnverifiedContractWithApproveFunction() {
-}
-
-export function opInvokeHostFunctionUnverifiedContractWithAssetContract() {
-}
-
-export function opInvokeHostFunctionAssetTransfer() {
-}
-
-export function opInvokeHostFunctionAssetApprove() {
 }
 
 export function opWithEmptySource() {
