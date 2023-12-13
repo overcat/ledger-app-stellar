@@ -17,7 +17,7 @@
 
 #include <stdbool.h>  // bool
 #include <stdio.h>
-#include <bsd/string.h>
+#include <string.h>
 
 #include "os.h"
 #include "bolos_target.h"

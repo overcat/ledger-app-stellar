@@ -16,7 +16,7 @@
  *****************************************************************************/
 
 #include <stdio.h>
-#include <bsd/string.h>
+#include <string.h>
 #include <time.h>
 #include <bolos_target.h>
 
