@@ -1569,7 +1569,7 @@ export function opInvokeHostFunctionAssetApprove() {
   return TransactionBuilder.fromXDR(xdr, Networks.TESTNET);
 }
 
-export function opExtendFootprintTTL() {
+export function opExtendFootprintTtl() {
   /**
    * soroban --very-verbose contract bump --ledgers-to-expire 130816 \
     --durability persistent --id CACEIKVZTU7Z6VKNISE3OO5MXSCKUC7HC2FNCWRO2HJMWSUPUWHDLSJE \

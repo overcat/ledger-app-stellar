@@ -67,7 +67,7 @@ static const char *testcases[] = {
     "../testcases/opClaimClaimableBalance.raw",
     "../testcases/opBeginSponsoringFutureReserves.raw",
     "../testcases/opEndSponsoringFutureReserves.raw",
-    "../testcases/opExtendFootprintTTL.raw",
+    "../testcases/opExtendFootprintTtl.raw",
     "../testcases/opRevokeSponsorshipAccount.raw",
     "../testcases/opRevokeSponsorshipTrustLineWithAsset.raw",
     "../testcases/opRevokeSponsorshipTrustLineWithLiquidityPoolId.raw",
