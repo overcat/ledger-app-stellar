@@ -1725,16 +1725,14 @@ static void format_invoke_host_function_unverified_contract_warning(tx_ctx_t *tx
 static void format_invoke_host_function_func_name(tx_ctx_t *tx_ctx) {
     STRLCPY(G.ui.detail_caption, "Function", DETAIL_CAPTION_MAX_LENGTH);
 
-    if (tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args.function_name
-            .text_size) {
-        memcpy(G.ui.detail_value,
-               tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args
-                   .function_name.text,
-               tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args
-                   .function_name.text_size);
-        G.ui.detail_value[tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args
-                              .function_name.text_size] = '\0';
-    }
+    memcpy(G.ui.detail_value,
+           tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args.function_name
+               .text,
+           tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args.function_name
+               .text_size);
+    G.ui.detail_value[tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args
+                          .function_name.text_size] = '\0';
+
     switch (
         tx_ctx->tx_details.op_details.invoke_host_function_op.invoke_contract_args.contract_type) {
         case SOROBAN_CONTRACT_TYPE_UNVERIFIED:
@@ -1765,7 +1763,6 @@ static void format_invoke_host_function_contract_id(tx_ctx_t *tx_ctx) {
 }
 
 static void format_invoke_host_function(tx_ctx_t *tx_ctx) {
-    (void) tx_ctx;
     switch (tx_ctx->tx_details.op_details.invoke_host_function_op.host_function_type) {
         case HOST_FUNCTION_TYPE_INVOKE_CONTRACT:
             STRLCPY(G.ui.detail_caption, "Soroban", DETAIL_CAPTION_MAX_LENGTH);

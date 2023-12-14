@@ -76,6 +76,8 @@ UX_FLOW(ux_soroban_auth_signing_flow,
         &ux_soroban_auth_display_reject_step);
 
 static bool get_next_data(char *caption, char *value, bool forward) {
+    explicit_bzero(caption, sizeof(caption));
+    explicit_bzero(value, sizeof(value));
     if (forward) {
         G.ui.current_data_index++;
     } else {

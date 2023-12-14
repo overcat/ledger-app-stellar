@@ -577,12 +577,11 @@ typedef struct {
 typedef struct {
 } restore_footprint_op_t;
 
-// ************************* Soroban ************************* //
-
 typedef enum {
     SOROBAN_AUTHORIZED_FUNCTION_TYPE_CONTRACT_FN = 0,
     SOROBAN_AUTHORIZED_FUNCTION_TYPE_CREATE_CONTRACT_HOST_FN = 1
 } soroban_authorization_function_type_t;
+// ************************* Soroban ************************* //
 
 typedef struct {
     muxed_account_t source_account;

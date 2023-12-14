@@ -31,6 +31,8 @@
         if (!(x)) return false; \
     }
 
+bool parse_scval(buffer_t *buffer);
+
 /* SHA256("Public Global Stellar Network ; September 2015") */
 static const uint8_t NETWORK_ID_PUBLIC_HASH[32] = {
     0x7a, 0xc3, 0x39, 0x97, 0x54, 0x4e, 0x31, 0x75, 0xd2, 0x66, 0xbd, 0x02, 0x24, 0x39, 0xb2, 0x2c,
@@ -40,6 +42,46 @@ static const uint8_t NETWORK_ID_PUBLIC_HASH[32] = {
 static const uint8_t NETWORK_ID_TEST_HASH[32] = {
     0xce, 0xe0, 0x30, 0x2d, 0x59, 0x84, 0x4d, 0x32, 0xbd, 0xca, 0x91, 0x5c, 0x82, 0x03, 0xdd, 0x44,
     0xb3, 0x3f, 0xbb, 0x7e, 0xdc, 0x19, 0x05, 0x1e, 0xa3, 0x7a, 0xbe, 0xdf, 0x28, 0xec, 0xd4, 0x72};
+
+static const contract_t SOROBAN_ASSET_CONTRACTS[SOROBAN_ASSET_CONTRACTS_NUM] = {
+    // XLM testnet
+    // CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC
+    {"XLM", {0xd7, 0x92, 0x8b, 0x72, 0xc2, 0x70, 0x3c, 0xcf, 0xea, 0xf7, 0xeb,
+             0x9f, 0xf4, 0xef, 0x4d, 0x50, 0x4a, 0x55, 0xa8, 0xb9, 0x79, 0xfc,
+             0x9b, 0x45, 0xe,  0xa2, 0xc8, 0x42, 0xb4, 0xd1, 0xce, 0x61}},
+    // CAS3J7GYLGXMF6TDJBBYYSE3HQ6BBSMLNUQ34T6TZMYMW2EVH34XOWMA
+    {"XLM", {0x25, 0xb4, 0xfc, 0xd8, 0x59, 0xae, 0xc2, 0xfa, 0x63, 0x48, 0x43,
+             0x8c, 0x48, 0x9b, 0x3c, 0x3c, 0x10, 0xc9, 0x8b, 0x6d, 0x21, 0xbe,
+             0x4f, 0xd3, 0xcb, 0x30, 0xcb, 0x68, 0x95, 0x3e, 0xf9, 0x77}},
+    // CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75
+    {"USDC", {0xad, 0xef, 0xce, 0x59, 0xae, 0xe5, 0x29, 0x68, 0xf7, 0x60, 0x61,
+              0xd4, 0x94, 0xc2, 0x52, 0x5b, 0x75, 0x65, 0x9f, 0xa4, 0x29, 0x6a,
+              0x65, 0xf4, 0x99, 0xef, 0x29, 0xe5, 0x64, 0x77, 0xe4, 0x96}},
+    // CBZVSNVB55ANF24QVJL2K5QCLOAB6XITGTGXYEAF6NPTXYKEJUYQOHFC
+    {"yXLM", {0x73, 0x59, 0x36, 0xa1, 0xef, 0x40, 0xd2, 0xeb, 0x90, 0xaa, 0x57,
+              0xa5, 0x76, 0x2,  0x5b, 0x80, 0x1f, 0x5d, 0x13, 0x34, 0xcd, 0x7c,
+              0x10, 0x5,  0xf3, 0x5f, 0x3b, 0xe1, 0x44, 0x4d, 0x31, 0x7}},
+    // CDOFW7HNKLUZRLFZST4EW7V3AV4JI5IHMT6BPXXSY2IEFZ4NE5TWU2P4
+    {"yUSDC",
+     {
+         0xdc, 0x5b, 0x7c, 0xed, 0x52, 0xe9, 0x98, 0xac, 0xb9, 0x94, 0xf8,
+         0x4b, 0x7e, 0xbb, 0x5,  0x78, 0x94, 0x75, 0x7,  0x64, 0xfc, 0x17,
+         0xde, 0xf2, 0xc6, 0x90, 0x42, 0xe7, 0x8d, 0x27, 0x67, 0x6a,
+     }},
+    // CAAV3AE3VKD2P4TY7LWTQMMJHIJ4WOCZ5ANCIJPC3NRSERKVXNHBU2W7
+    {"XRP",
+     {
+         0x1,  0x5d, 0x80, 0x9b, 0xaa, 0x87, 0xa7, 0xf2, 0x78, 0xfa, 0xed,
+         0x38, 0x31, 0x89, 0x3a, 0x13, 0xcb, 0x38, 0x59, 0xe8, 0x1a, 0x24,
+         0x25, 0xe2, 0xdb, 0x63, 0x22, 0x45, 0x55, 0xbb, 0x4e, 0x1a,
+     }},
+    // CAUIKL3IYGMERDRUN6YSCLWVAKIFG5Q4YJHUKM4S4NJZQIA3BAS6OJPK
+    {"AQUA",
+     {
+         0x28, 0x85, 0x2f, 0x68, 0xc1, 0x98, 0x48, 0x8e, 0x34, 0x6f, 0xb1,
+         0x21, 0x2e, 0xd5, 0x2,  0x90, 0x53, 0x76, 0x1c, 0xc2, 0x4f, 0x45,
+         0x33, 0x92, 0xe3, 0x53, 0x98, 0x20, 0x1b, 0x8,  0x25, 0xe7,
+     }}};
 
 static bool buffer_advance(buffer_t *buffer, size_t num_bytes) {
     return buffer_seek_cur(buffer, num_bytes);
@@ -739,6 +781,41 @@ bool parse_sc_address(buffer_t *buffer, sc_address_t *sc_address) {
     }
 }
 
+bool parse_scval_vec(buffer_t *buffer) {
+    uint32_t vec_len;
+    PARSER_CHECK(buffer_read32(buffer, &vec_len))
+    PRINTF("vec_len: %d\n", vec_len);
+    for (uint32_t i = 0; i < vec_len; i++) {
+        PARSER_CHECK(parse_scval(buffer))
+    }
+}
+
+bool parse_scval_map(buffer_t *buffer) {
+    uint32_t map_len;
+    PARSER_CHECK(buffer_read32(buffer, &map_len))
+    PRINTF("map_len: %d\n", map_len);
+    for (uint32_t i = 0; i < map_len; i++) {
+        PARSER_CHECK(parse_scval(buffer))
+        PARSER_CHECK(parse_scval(buffer))
+    }
+}
+
+bool parse_contract_executable(buffer_t *buffer) {
+    uint32_t type;
+    PARSER_CHECK(buffer_read32(buffer, &type))
+    switch (type) {
+        case CONTRACT_EXECUTABLE_WASM:
+            PARSER_CHECK(buffer_advance(buffer, 32))  // code
+            break;
+        case CONTRACT_EXECUTABLE_STELLAR_ASSET:
+            // void
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
 bool parse_scval(buffer_t *buffer) {
     uint32_t sc_type;
     PARSER_CHECK(buffer_read32(buffer, &sc_type))
@@ -784,12 +861,7 @@ bool parse_scval(buffer_t *buffer) {
             PARSER_CHECK(buffer_read_bool(buffer, &vec_exists))
             PRINTF("vec_exists: %d\n", vec_exists);
             if (vec_exists) {
-                uint32_t vec_len;
-                PARSER_CHECK(buffer_read32(buffer, &vec_len))
-                PRINTF("vec_len: %d\n", vec_len);
-                for (uint32_t i = 0; i < vec_len; i++) {
-                    PARSER_CHECK(parse_scval(buffer))
-                }
+                parse_scval_vec(buffer);
             }
             break;
         }
@@ -798,13 +870,7 @@ bool parse_scval(buffer_t *buffer) {
             PARSER_CHECK(buffer_read_bool(buffer, &map_exists))
             PRINTF("map_exists: %d\n", map_exists);
             if (map_exists) {
-                uint32_t map_len;
-                PARSER_CHECK(buffer_read32(buffer, &map_len))
-                PRINTF("map_len: %d\n", map_len);
-                for (uint32_t i = 0; i < map_len; i++) {
-                    PARSER_CHECK(parse_scval(buffer))
-                    PARSER_CHECK(parse_scval(buffer))
-                }
+                parse_scval_map(buffer);
             }
             break;
         }
@@ -813,8 +879,15 @@ bool parse_scval(buffer_t *buffer) {
             PARSER_CHECK(parse_sc_address(buffer, &sc_address));
             break;
         }
-        case SCV_CONTRACT_INSTANCE:
-            return false;  // not implemented
+        case SCV_CONTRACT_INSTANCE: {
+            PARSER_CHECK(parse_contract_executable(buffer))
+            bool map_exists;
+            PARSER_CHECK(buffer_read_bool(buffer, &map_exists))
+            if (map_exists) {
+                parse_scval_map(buffer);
+            }
+            break;
+        }
         case SCV_LEDGER_KEY_CONTRACT_INSTANCE:
             break;  // void
         case SCV_LEDGER_KEY_NONCE:
@@ -858,7 +931,6 @@ bool parse_ledger_key(buffer_t *buffer, ledger_key_t *ledger_key) {
             ledger_key->liquidity_pool.liquidity_pool_id = buffer->ptr + buffer->offset;
             PARSER_CHECK(buffer_advance(buffer, LIQUIDITY_POOL_ID_SIZE))
             return true;
-        // TODO: Check if the following can be removed in operation parse_revoke_sponsorship.
         case CONTRACT_DATA: {
             sc_address_t sc_address;
             PARSER_CHECK(parse_sc_address(buffer, &sc_address))  // contract
@@ -870,9 +942,11 @@ bool parse_ledger_key(buffer_t *buffer, ledger_key_t *ledger_key) {
             PARSER_CHECK(buffer_advance(buffer, 32))
             return true;
         case CONFIG_SETTING:
-            return false;
+            PARSER_CHECK(buffer_advance(buffer, 4))
+            return true;
         case TTL:
-            return false;
+            PARSER_CHECK(buffer_advance(buffer, 32))
+            return true;
         default:
             return false;
     }
@@ -1027,30 +1101,9 @@ bool parse_create_contract_args(buffer_t *buffer) {
     }
 
     // executable
-    PARSER_CHECK(buffer_read32(buffer, &type))
-    switch (type) {
-        case CONTRACT_EXECUTABLE_WASM:
-            PARSER_CHECK(buffer_advance(buffer, 32))  // code
-            break;
-        case CONTRACT_EXECUTABLE_STELLAR_ASSET:
-            // void
-            break;
-        default:
-            return false;
-    }
+    PARSER_CHECK(parse_contract_executable(buffer))
     return true;
 }
-
-const contract_t SOROBAN_ASSET_CONTRACTS[SOROBAN_ASSET_CONTRACTS_NUM] = {
-    {"XLM", {0xd7, 0x92, 0x8b, 0x72, 0xc2, 0x70, 0x3c, 0xcf, 0xea, 0xf7, 0xeb,
-             0x9f, 0xf4, 0xef, 0x4d, 0x50, 0x4a, 0x55, 0xa8, 0xb9, 0x79, 0xfc,
-             0x9b, 0x45, 0xe,  0xa2, 0xc8, 0x42, 0xb4, 0xd1, 0xce, 0x61}},
-    {"XLM", {0x25, 0xb4, 0xfc, 0xd8, 0x59, 0xae, 0xc2, 0xfa, 0x63, 0x48, 0x43,
-             0x8c, 0x48, 0x9b, 0x3c, 0x3c, 0x10, 0xc9, 0x8b, 0x6d, 0x21, 0xbe,
-             0x4f, 0xd3, 0xcb, 0x30, 0xcb, 0x68, 0x95, 0x3e, 0xf9, 0x77}},
-    {"USDC", {0xad, 0xef, 0xce, 0x59, 0xae, 0xe5, 0x29, 0x68, 0xf7, 0x60, 0x61,
-              0xd4, 0x94, 0xc2, 0x52, 0x5b, 0x75, 0x65, 0x9f, 0xa4, 0x29, 0x6a,
-              0x65, 0xf4, 0x99, 0xef, 0x29, 0xe5, 0x64, 0x77, 0xe4, 0x96}}};
 
 bool parse_invoke_contract_args(buffer_t *buffer, invoke_contract_args_t *args) {
     // contractAddress
