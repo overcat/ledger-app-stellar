@@ -36,7 +36,7 @@ int handle_sign_soroban_authorization(buffer_t *cdata, bool is_first_chunk, bool
     }
 
     if (is_first_chunk) {
-        G_context.req_type = CONFIRM_TRANSACTION;
+        G_context.req_type = CONFIRM_SOROBAN_AUTHORATION;
         G_context.state = STATE_NONE;
 
         if (!buffer_read_u8(cdata, &G_context.bip32_path_len) ||
@@ -49,7 +49,7 @@ int handle_sign_soroban_authorization(buffer_t *cdata, bool is_first_chunk, bool
         memcpy(G_context.auth.raw, cdata->ptr + cdata->offset, data_length);
         G_context.auth.raw_size += data_length;
     } else {
-        if (G_context.req_type != CONFIRM_TRANSACTION) {
+        if (G_context.req_type != CONFIRM_SOROBAN_AUTHORATION) {
             return io_send_sw(SW_BAD_STATE);
         }
         memcpy(G_context.auth.raw + G_context.auth.raw_size, cdata->ptr, cdata->size);
