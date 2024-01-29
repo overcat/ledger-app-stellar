@@ -36,8 +36,10 @@ int handle_check_address(const check_address_parameters_t* params) {
         return 0;
     }
 
-    crypto_init_public_key(&privateKey, &publicKey, stellar_publicKey);
-
+    int error = crypto_init_public_key(&privateKey, &publicKey, stellar_publicKey);
+    if (error != 0) {
+        return io_send_sw(error);
+    }
     explicit_bzero(&privateKey, sizeof(privateKey));
 
     char address[57];

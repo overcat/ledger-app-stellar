@@ -48,7 +48,7 @@ end:
     explicit_bzero(&raw_private_key, sizeof(raw_private_key));
     if (error != CX_OK) {
         explicit_bzero(private_key, sizeof(*private_key));
-        return -1;
+        return error;
     }
     return 0;
 }
@@ -66,17 +66,17 @@ void raw_public_key_le_to_be(cx_ecfp_public_key_t *public_key,
     }
 }
 
-void crypto_init_public_key(cx_ecfp_private_key_t *private_key,
-                            cx_ecfp_public_key_t *public_key,
-                            uint8_t raw_public_key[static RAW_ED25519_PUBLIC_KEY_SIZE]) {
+int crypto_init_public_key(cx_ecfp_private_key_t *private_key,
+                           cx_ecfp_public_key_t *public_key,
+                           uint8_t raw_public_key[static RAW_ED25519_PUBLIC_KEY_SIZE]) {
     cx_err_t error = CX_OK;
 
     // generate corresponding public key
-    CX_THROW(cx_ecfp_generate_pair_no_throw(CX_CURVE_Ed25519, public_key, private_key, 1));
+    CX_CHECK(cx_ecfp_generate_pair_no_throw(CX_CURVE_Ed25519, public_key, private_key, 1));
 
 end:
     if (error != CX_OK) {
-        return -1;
+        return error;
     }
     raw_public_key_le_to_be(public_key, raw_public_key);
     return 0;
@@ -90,8 +90,10 @@ int crypto_sign_message(const uint8_t *message,
     cx_err_t error = CX_OK;
 
     // derive private key according to BIP32 path
-    if (crypto_derive_private_key(&private_key, G_context.bip32_path, G_context.bip32_path_len)) {
-        return -1;
+    int ret =
+        crypto_derive_private_key(&private_key, G_context.bip32_path, G_context.bip32_path_len);
+    if (ret != 0) {
+        return ret;
     }
 
     CX_CHECK(cx_eddsa_sign_no_throw(&private_key,
@@ -106,7 +108,7 @@ end:
     explicit_bzero(&private_key, sizeof(private_key));
     if (error != CX_OK) {
         PRINTF("In crypto_sign_message: ERROR %x \n", error);
-        return -1;
+        return error;
     }
     return 0;
 }

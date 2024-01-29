@@ -116,7 +116,10 @@ int handler_sign_tx(buffer_t *cdata, bool is_first_chunk, bool more) {
             return io_send_sw(error);
         }
         // generate corresponding public key
-        crypto_init_public_key(&private_key, &public_key, G_context.raw_public_key);
+        error = crypto_init_public_key(&private_key, &public_key, G_context.raw_public_key);
+        if (error != 0) {
+            return io_send_sw(error);
+        }
         // reset private key
         explicit_bzero(&private_key, sizeof(private_key));
 
