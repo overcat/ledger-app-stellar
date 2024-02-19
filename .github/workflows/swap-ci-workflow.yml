@@ -12,6 +12,6 @@ jobs:
   job_functional_tests:
     uses: overcat/tmp-app-exchange/.github/workflows/reusable_swap_functional_tests.yml@develop
     with:
-      repo_for_stellar: 'overcat/ledger-app-stellar'
+      repo_for_stellar: 'overcat/tmp-ledger-app-stellar'
       branch_for_stellar: ${{ github.ref }}
       test_filter: '"XLM or xlm or Stellar or stellar"'
