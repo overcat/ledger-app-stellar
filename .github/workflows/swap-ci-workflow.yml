@@ -10,7 +10,7 @@ on:
 
 jobs:
   job_functional_tests:
-    uses: LedgerHQ/app-exchange/.github/workflows/reusable_swap_functional_tests.yml@develop
+    uses: overcat/app-exchange/.github/workflows/reusable_swap_functional_tests.yml@fix-stellar
     with:
       repo_for_stellar: 'overcat/ledger-app-stellar'
       branch_for_stellar: ${{ github.ref }}
