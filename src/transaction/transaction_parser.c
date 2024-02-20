@@ -1495,7 +1495,7 @@ bool parse_transaction_details(buffer_t *buffer, transaction_details_t *transact
     PARSER_CHECK(parse_transaction_operation_len(buffer, &transaction->operations_count))
     size_t offset = buffer->offset;
     PARSER_CHECK(check_operations(buffer, transaction->operations_count))
-    PARSER_CHECK(parse_transaction_ext(buffer))
+    // PARSER_CHECK(parse_transaction_ext(buffer))
     buffer->offset = offset;
     return true;
 }
