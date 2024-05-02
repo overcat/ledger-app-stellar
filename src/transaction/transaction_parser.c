@@ -62,6 +62,7 @@ static bool buffer_read_bool(buffer_t *buffer, bool *b) {
         return false;
     }
     *b = val == 1 ? true : false;
+    // debug
     return true;
 }
 
